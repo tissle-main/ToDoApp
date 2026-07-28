@@ -3,7 +3,7 @@ import { Component, signal } from '@angular/core';
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
-  standalone: false,
+  standalone: true,
   styleUrl: './app.css'
 })
 export class App {

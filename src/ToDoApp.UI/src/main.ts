@@ -1,7 +1,17 @@
-import { platformBrowser } from '@angular/platform-browser';
-import { AppModule } from './app/app-module';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { App } from './app/app';
+import { provideRouter, Routes } from '@angular/router';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 
-platformBrowser().bootstrapModule(AppModule, {
-  
-})
-  .catch(err => console.error(err));
+const routes: Routes = [];
+const appConfig: ApplicationConfig = {
+  providers: [
+    provideBrowserGlobalErrorListeners(),
+    provideRouter(routes),
+    // {
+    //   provide: API_BASE_URL,
+    //   useValue: "/api"
+    // }
+  ]
+};
+bootstrapApplication(App, appConfig).catch(console.error);

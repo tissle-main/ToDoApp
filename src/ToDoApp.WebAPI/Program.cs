@@ -1,38 +1,55 @@
-var builder = WebApplication.CreateBuilder(args);
+using Serilog;
+using ToDoApp.Data;
+using FluentValidation;
+using ToDoApp.WebAPI.Behaviors;
+using ToDoApp.WebAPI.Extensions;
+using ToDoApp.WebAPI.Middleware;
+using Microsoft.EntityFrameworkCore;
 
+ValidatorOptions.Global.LanguageManager.Enabled = false;
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
-
-// Add services to the container.
-
-var app = builder.Build();
-
-app.MapDefaultEndpoints();
-
-// Configure the HTTP request pipeline.
-
-app.UseHttpsRedirection();
-
-var summaries = new[]
+builder.Host.UseSerilog(static void(HostBuilderContext ctx, IServiceProvider provider, LoggerConfiguration cfg) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    cfg.WriteTo.Console();
 });
-
-app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+builder.Services.AddMvcCore();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddOpenApi();
+builder.Services.AddSwaggerGen();
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
+builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    string? connection_str = builder.Configuration.GetConnectionString("todoapp-database");
+    options.UseSqlServer(connection_str, builder =>
+    {
+        builder.MigrationsAssembly(typeof(AppDbContext).Assembly.GetName().Name);
+    });
+});
+builder.Services.AddMediator(options =>
+{
+    options.ServiceLifetime = ServiceLifetime.Scoped;
+    options.PipelineBehaviors = [typeof(ValidationBehavior<,>)];
+});
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
+WebApplication app = builder.Build();
+app.MapDefaultEndpoints();
+if(app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapSwagger();
+    app.MapSwaggerUI();
 }
+using(IServiceScope scope = app.Services.CreateScope())
+{
+    Console.WriteLine("Applying migrations...");
+    await scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.MigrateAsync();
+    Console.WriteLine("Migrations applied");
+}
+app.UseSerilogRequestLogging();
+app.UseExceptionHandler();
+app.MapEndpointsFromAssembly();
+app.UseHttpsRedirection();
+await app.RunAsync();

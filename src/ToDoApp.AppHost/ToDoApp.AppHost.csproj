@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.2.4">
+<Project Sdk="Aspire.AppHost.Sdk/13.4.6">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -7,6 +7,11 @@
     <Nullable>enable</Nullable>
     <UserSecretsId>52dacfe5-225b-47b5-87af-a51b165344ff</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.JavaScript" Version="13.4.6" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" Version="13.4.6" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ToDoApp.WebAPI\ToDoApp.WebAPI.csproj" />

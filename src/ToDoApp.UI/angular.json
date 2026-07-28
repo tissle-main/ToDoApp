@@ -10,13 +10,13 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-          "standalone": false
+          "standalone": true
         },
         "@schematics/angular:directive": {
-          "standalone": false
+          "standalone": true
         },
         "@schematics/angular:pipe": {
-          "standalone": false
+          "standalone": true
         }
       },
       "root": "",
@@ -74,7 +74,7 @@
           },
           "defaultConfiguration": "development",
           "options": {
-            "port": 55012
+            "proxyConfig": "proxy.conf.js"
           }
         },
         "test": {
