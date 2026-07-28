@@ -65,7 +65,7 @@ public static class FluentResultExtensions
             return result.WithError(error);
         }
     }
-    public static IResult ToMvcResult(this Result result)
+    public static IActionResult ToActionResult(this Result result)
     {
         if(result.Reasons.FirstOrDefault(r => r.HasMetadataKey(StatusCodeKey)) is IReason reason)
         {
@@ -74,27 +74,27 @@ public static class FluentResultExtensions
             {
                 case StatusCodes.Status400BadRequest:
                 {
-                    return Results.BadRequest(ToProblemDetails(result.Errors, statusCode));
+                    return new BadRequestObjectResult(ToProblemDetails(result.Errors, statusCode));
                 }
                 case StatusCodes.Status401Unauthorized:
                 {
-                    return Results.Unauthorized();
+                    return new UnauthorizedObjectResult(ToProblemDetails(result.Errors, statusCode));
                 }
                 case StatusCodes.Status403Forbidden:
                 {
-                    return Results.Forbid();
+                    return new ForbidResult();
                 }
                 case StatusCodes.Status404NotFound:
                 {
-                    return Results.NotFound(ToProblemDetails(result.Errors, statusCode));
+                    return new NotFoundObjectResult(ToProblemDetails(result.Errors, statusCode));
                 }
                 case StatusCodes.Status409Conflict:
                 {
-                    return Results.Conflict(ToProblemDetails(result.Errors, statusCode));
+                    return new ConflictObjectResult(ToProblemDetails(result.Errors, statusCode));
                 }
                 default:
                 {
-                    return Results.StatusCode(statusCode);
+                    return new StatusCodeResult(statusCode);
                 }
             }
         }
@@ -102,15 +102,15 @@ public static class FluentResultExtensions
         {
             if(result.IsSuccess)
             {
-                return Results.NoContent();
+                return new NoContentResult();
             }
             else
             {
-                return Results.BadRequest(ToProblemDetails(result.Errors, StatusCodes.Status400BadRequest));
+                return new BadRequestObjectResult(ToProblemDetails(result.Errors, StatusCodes.Status400BadRequest));
             }
         }
     }
-    public static IResult ToMvcResult<T>(this Result<T> result)
+    public static IActionResult ToActionResult<T>(this Result<T> result)
     {
         if(result.Reasons.FirstOrDefault(r => r.HasMetadataKey(StatusCodeKey)) is IReason reason)
         {
@@ -119,27 +119,27 @@ public static class FluentResultExtensions
             {
                 case StatusCodes.Status400BadRequest:
                 {
-                    return Results.BadRequest(ToProblemDetails(result.Errors, statusCode));
+                    return new BadRequestObjectResult(ToProblemDetails(result.Errors, statusCode));
                 }
                 case StatusCodes.Status401Unauthorized:
                 {
-                    return Results.Unauthorized();
+                    return new UnauthorizedObjectResult(ToProblemDetails(result.Errors, statusCode));
                 }
                 case StatusCodes.Status403Forbidden:
                 {
-                    return Results.Forbid();
+                    return new ForbidResult();
                 }
                 case StatusCodes.Status404NotFound:
                 {
-                    return Results.NotFound(ToProblemDetails(result.Errors, statusCode));
+                    return new NotFoundObjectResult(ToProblemDetails(result.Errors, statusCode));
                 }
                 case StatusCodes.Status409Conflict:
                 {
-                    return Results.Conflict(ToProblemDetails(result.Errors, statusCode));
+                    return new ConflictObjectResult(ToProblemDetails(result.Errors, statusCode));
                 }
                 default:
                 {
-                    return Results.StatusCode(statusCode);
+                    return new StatusCodeResult(statusCode);
                 }
             }
         }
@@ -147,11 +147,11 @@ public static class FluentResultExtensions
         {
             if(result.IsSuccess)
             {
-                return Results.Ok(result.Value);
+                return new OkObjectResult(result.Value);
             }
             else
             {
-                return Results.BadRequest(ToProblemDetails(result.Errors, StatusCodes.Status400BadRequest));
+                return new BadRequestObjectResult(ToProblemDetails(result.Errors, StatusCodes.Status400BadRequest));
             }
         }
     }

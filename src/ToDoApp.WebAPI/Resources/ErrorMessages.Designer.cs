@@ -61,11 +61,20 @@ namespace ToDoApp.WebAPI.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Record with &apos;{0}&apos; equals to &apos;{1}&apos; not found.
+        ///   Looks up a localized string similar to Record of type &apos;{0}&apos; with property &apos;{1}&apos; equals to value &apos;{2}&apos; not found..
         /// </summary>
         public static string RecordNotFound {
             get {
                 return ResourceManager.GetString("RecordNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Records of type &apos;{0}&apos; with property &apos;{1}&apos; equals to any of values &apos;[{2}]&apos; not found..
+        /// </summary>
+        public static string RecordsNotFound {
+            get {
+                return ResourceManager.GetString("RecordsNotFound", resourceCulture);
             }
         }
     }

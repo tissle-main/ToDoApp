@@ -2,8 +2,9 @@ using Serilog;
 using ToDoApp.Data;
 using FluentValidation;
 using ToDoApp.WebAPI.Behaviors;
-using ToDoApp.WebAPI.Extensions;
+//using ToDoApp.WebAPI.Extensions;
 using ToDoApp.WebAPI.Middleware;
+using ToDoApp.WebAPI.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 ValidatorOptions.Global.LanguageManager.Enabled = false;
@@ -13,8 +14,9 @@ builder.Host.UseSerilog(static void(HostBuilderContext ctx, IServiceProvider pro
 {
     cfg.WriteTo.Console();
 });
-builder.Services.AddMvcCore();
-builder.Services.AddEndpointsApiExplorer();
+//builder.Services.AddMvcCore();
+//builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 builder.Services.AddProblemDetails();
@@ -33,6 +35,7 @@ builder.Services.AddMediator(options =>
     options.PipelineBehaviors = [typeof(ValidationBehavior<,>)];
 });
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddJoinHandlersFromAssembly();
 
 WebApplication app = builder.Build();
 app.MapDefaultEndpoints();
@@ -50,6 +53,7 @@ using(IServiceScope scope = app.Services.CreateScope())
 }
 app.UseSerilogRequestLogging();
 app.UseExceptionHandler();
-app.MapEndpointsFromAssembly();
 app.UseHttpsRedirection();
+//app.MapEndpointsFromAssembly();
+app.MapControllers();
 await app.RunAsync();

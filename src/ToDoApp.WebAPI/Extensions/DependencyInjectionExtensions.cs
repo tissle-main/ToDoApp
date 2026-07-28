@@ -17,4 +17,20 @@ public static class DependencyInjectionExtensions
             endpoints.MapEndpoints(builder);
         }
     }
+    public static void AddJoinHandlersFromAssembly(this IServiceCollection services, Assembly? assembly = null)
+    {
+        assembly ??= typeof(IJoinHandler<>).Assembly;
+        IEnumerable<Type> handlerTypes = assembly.GetTypes().Where(type =>
+        {
+            bool notAbstract = !type.IsAbstract;
+            bool notInterface = !type.IsInterface;
+            bool implementsInterface = type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IJoinHandler<>));
+            return notAbstract && notInterface && implementsInterface;
+        });
+        foreach(Type type in handlerTypes)
+        {
+            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IJoinHandler<>));
+            services.AddScoped(interfaceType, type);
+        }
+    }
 }

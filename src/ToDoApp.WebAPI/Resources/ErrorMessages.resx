@@ -118,6 +118,9 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="RecordNotFound" xml:space="preserve">
-    <value>Record with '{0}' equals to '{1}' not found</value>
+    <value>Record of type '{0}' with property '{1}' equals to value '{2}' not found.</value>
+  </data>
+  <data name="RecordsNotFound" xml:space="preserve">
+    <value>Records of type '{0}' with property '{1}' equals to any of values '[{2}]' not found.</value>
   </data>
 </root>
