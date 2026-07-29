@@ -3,32 +3,31 @@ using ToDoApp.Data;
 using FluentResults;
 using ToDoApp.WebAPI.Resources;
 using ToDoApp.WebAPI.Extensions;
-using ToDoApp.Data.Features.Tasks;
 using Microsoft.EntityFrameworkCore;
-using ToDoApp.WebAPI.Features.Tasks.Dtos;
+using ToDoApp.Data.Features.Categories;
 using ToDoApp.WebAPI.Features.Categories.Dtos;
 
-namespace ToDoApp.WebAPI.Features.Tasks.Handlers;
+namespace ToDoApp.WebAPI.Features.Categories.Handlers;
 
-public sealed class GetTasksHandler(
+public sealed class GetCategoriesHandler(
     AppDbContext thisDbContext,
-    ILogger<GetTasksHandler> thisLogger
-) : IRequestHandler<GetTasksQuery, Result<TaskDto[]>>
+    ILogger<GetCategoriesHandler> thisLogger
+) : IRequestHandler<GetCategoriesQuery, Result<CategoryDto[]>>
 {
     #region Interfaces
-    public async ValueTask<Result<TaskDto[]>> Handle(GetTasksQuery request, CancellationToken cancellationToken)
+    public async ValueTask<Result<CategoryDto[]>> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
     {
-        IQueryable<TaskEntity> query = thisDbContext.Tasks.AsNoTracking().Include(e => e.Categories);
+        IQueryable<CategoryEntity> query = thisDbContext.Categories.AsNoTracking().Include(e => e.Tasks);
         if(request.Ids.Length == 0)
         {
             return await query.ProjectToDtos().ToArrayAsync(cancellationToken);
         }
-        TaskDto[] dtos = await query.Where(e => request.Ids.Contains(e.Id)).ProjectToDtos().ToArrayAsync(cancellationToken);
+        CategoryDto[] dtos = await query.Where(e => request.Ids.Contains(e.Id)).ProjectToDtos().ToArrayAsync(cancellationToken);
         if(dtos.Length != request.Ids.Length)
         {
             Guid[] missingIds = request.Ids.Except(dtos.Select(dto => dto.Id)).ToArray();
             string idsString = string.Join(", ", missingIds);
-            string msg = string.Format(ErrorMessages.RecordsNotFound, nameof(TaskEntity), nameof(TaskEntity.Id), idsString);
+            string msg = string.Format(ErrorMessages.RecordsNotFound, nameof(CategoryEntity), nameof(CategoryEntity.Id), idsString);
             return Result.Fail(msg).LogTo(thisLogger).WithStatusCode(StatusCodes.Status404NotFound);
         }
         return dtos;

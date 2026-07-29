@@ -23,7 +23,7 @@ public sealed class CreateCategoryHandler(
         Result result = await thisJoinHandler.Handle([], entity.Tasks, cancellationToken);
         if(result.IsFailed)
         {
-            return result.ToResult<Guid>();
+            return result;
         }
         await thisDbContext.SaveChangesAsync(cancellationToken);
         return Result.Ok(entity.Id);

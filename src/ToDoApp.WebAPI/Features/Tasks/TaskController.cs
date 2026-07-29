@@ -12,29 +12,29 @@ namespace ToDoApp.WebAPI.Features.Tasks;
 public sealed class TaskController : ControllerBase
 {
     [HttpGet("/task", Name = nameof(GetTasks))]
-    [ProducesResponseType<IEnumerable<TaskDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<TaskDto[]>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
-    [ProducesResponseType<HttpValidationProblemDetails>(StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> GetTasks(
-        [FromQuery] GetTasksQuery query,
+        [FromQuery] Guid[] ids,
         [FromServices] IMediator mediator,
         CancellationToken cancellationToken
     )
     {
-        Result<IEnumerable<TaskDto>> result = await mediator.Send(query, cancellationToken);
+        Result<TaskDto[]> result = await mediator.Send(new GetTasksQuery(ids), cancellationToken);
         return result.ToActionResult();
     }
 
-    [HttpGet("/task/{id:guid}", Name = nameof(GetTaskById))]
-    [ProducesResponseType<TaskDto>(StatusCodes.Status200OK)]
+    [HttpGet("/task/filter", Name = nameof(GetTasksByFilter))]
+    [ProducesResponseType<TaskDto[]>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetTaskById(
-        [FromRoute] Guid id,
+    [ProducesResponseType<HttpValidationProblemDetails>(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> GetTasksByFilter(
+        [FromQuery] GetTasksByFilterQuery query,
         [FromServices] IMediator mediator,
         CancellationToken cancellationToken
     )
     {
-        Result<TaskDto> result = await mediator.Send(new GetTaskByIdQuery(id), cancellationToken);
+        Result<TaskDto[]> result = await mediator.Send(query, cancellationToken);
         return result.ToActionResult();
     }
 
@@ -66,16 +66,16 @@ public sealed class TaskController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpDelete("/task/{id:guid}", Name = nameof(DeleteTask))]
+    [HttpDelete("/task", Name = nameof(DeleteTasks))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteTask(
-        [FromRoute] Guid id,
+    public async Task<IActionResult> DeleteTasks(
+        [FromQuery] Guid[] ids,
         [FromServices] IMediator mediator,
         CancellationToken cancellationToken
     )
     {
-        Result result = await mediator.Send(new DeleteTaskCommand(id), cancellationToken);
+        Result result = await mediator.Send(new DeleteTasksCommand(ids), cancellationToken);
         return result.ToActionResult();
     }
 }

@@ -11,33 +11,21 @@ namespace ToDoApp.WebAPI.Features.Categories;
 [Route("/api")]
 public sealed class CategoryController : ControllerBase
 {
-    [HttpGet("/category", Name = nameof(GetAllCategories))]
-    [ProducesResponseType<IEnumerable<CategoryDto>>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllCategories(
-        [FromServices] IMediator mediator,
-        CancellationToken cancellationToken
-    )
-    {
-        Result<IEnumerable<CategoryDto>> result = await mediator.Send(new GetAllCategoriesQuery(), cancellationToken);
-        return result.ToActionResult();
-    }
-
-    [HttpGet("/category/{id:guid}", Name = nameof(GetCategoryById))]
-    [ProducesResponseType<CategoryDto>(StatusCodes.Status200OK)]
+    [HttpGet("/category", Name = nameof(GetCategories))]
+    [ProducesResponseType<CategoryDto[]>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetCategoryById(
-        [FromRoute] Guid id,
+    public async Task<IActionResult> GetCategories(
+        [FromQuery] Guid[] ids,
         [FromServices] IMediator mediator,
         CancellationToken cancellationToken
     )
     {
-        Result<CategoryDto> result = await mediator.Send(new GetCategoryByIdQuery(id), cancellationToken);
+        Result<CategoryDto[]> result = await mediator.Send(new GetCategoriesQuery(ids), cancellationToken);
         return result.ToActionResult();
     }
 
     [HttpPost("/category", Name = nameof(CreateCategory))]
     [ProducesResponseType<Guid>(StatusCodes.Status200OK)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<HttpValidationProblemDetails>(StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> CreateCategory(
         [FromBody] CategoryDto dto,
@@ -63,16 +51,16 @@ public sealed class CategoryController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpDelete("/category/{id:guid}", Name = nameof(DeleteCategory))]
+    [HttpDelete("/category", Name = nameof(DeleteCategories))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteCategory(
-        [FromRoute] Guid id,
+    public async Task<IActionResult> DeleteCategories(
+        [FromQuery] Guid[] ids,
         [FromServices] IMediator mediator,
         CancellationToken cancellationToken
     )
     {
-        Result result = await mediator.Send(new DeleteCategoryCommand(id), cancellationToken);
+        Result result = await mediator.Send(new DeleteCategoriesCommand(ids), cancellationToken);
         return result.ToActionResult();
     }
 }

@@ -3,7 +3,7 @@ using ToDoApp.WebAPI.Features.Tasks.Handlers;
 
 namespace ToDoApp.WebAPI.Features.Tasks.Validators;
 
-public sealed class GetTasksQueryValidator : AbstractValidator<GetTasksQuery>
+public sealed class GetTasksQueryValidator : AbstractValidator<GetTasksByFilterQuery>
 {
     public GetTasksQueryValidator()
     {
