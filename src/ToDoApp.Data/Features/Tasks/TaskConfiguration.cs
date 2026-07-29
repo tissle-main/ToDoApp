@@ -13,6 +13,8 @@ public sealed class TaskConfiguration : IEntityTypeConfiguration<TaskEntity>
         builder.Property(e => e.Title).IsRequired().HasMaxLength(TaskConstants.TitleMaxLength);
         builder.Property(e => e.Description).IsRequired().HasMaxLength(TaskConstants.DescriptionMaxLength);
         builder.Property(e => e.Done).IsRequired();
+        builder.Property(e => e.UserId).IsRequired();
+        builder.HasOne(e => e.User).WithMany(u => u.Tasks).HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Cascade);
     }
     #endregion
 }

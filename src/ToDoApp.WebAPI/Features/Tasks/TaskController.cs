@@ -2,11 +2,13 @@
 using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using ToDoApp.WebAPI.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using ToDoApp.WebAPI.Features.Tasks.Dtos;
 using ToDoApp.WebAPI.Features.Tasks.Handlers;
 
 namespace ToDoApp.WebAPI.Features.Tasks;
 
+[Authorize]
 [ApiController]
 [Route("/api")]
 public sealed class TaskController : ControllerBase

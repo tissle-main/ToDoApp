@@ -11,6 +11,8 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<CategoryEnt
         builder.HasKey(e => e.Id);
         builder.Property(e => e.Id).ValueGeneratedOnAdd();
         builder.Property(e => e.Name).IsRequired().HasMaxLength(CategoryConstants.NameMaxLength);
+        builder.Property(e => e.UserId).IsRequired();
+        builder.HasOne(e => e.User).WithMany(u => u.Categories).HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Cascade);
     }
     #endregion
 }

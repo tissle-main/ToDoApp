@@ -1,6 +1,10 @@
-﻿using System.Reflection;
+﻿using System.Text;
+using System.Reflection;
 using ToDoApp.WebAPI.Features;
+using ToDoApp.WebAPI.Services.Jwt;
+using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace ToDoApp.WebAPI.Extensions;
 
@@ -32,5 +36,26 @@ public static class DependencyInjectionExtensions
             Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IJoinHandler<>));
             services.AddScoped(interfaceType, type);
         }
+    }
+    public static void AddJwtAuth(this WebApplicationBuilder builder)
+    {
+        IConfigurationSection jwt = builder.Configuration.GetSection(JwtOptions.SectionName);
+        builder.Services.Configure<JwtOptions>(jwt);
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = jwt["Issuer"],
+                ValidateAudience = true,
+                ValidAudience = jwt["Audience"],
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!)),
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+        });
+        builder.Services.AddAuthorization();
+        builder.Services.AddScoped<IJwtService, JwtService>();
     }
 }

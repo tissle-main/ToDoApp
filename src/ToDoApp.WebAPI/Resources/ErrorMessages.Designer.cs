@@ -61,6 +61,24 @@ namespace ToDoApp.WebAPI.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid password..
+        /// </summary>
+        public static string InvalidPassword {
+            get {
+                return ResourceManager.GetString("InvalidPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Record of type &apos;{0}&apos; with property &apos;{1}&apos; equals to value &apos;{2}&apos; already exists..
+        /// </summary>
+        public static string RecordExists {
+            get {
+                return ResourceManager.GetString("RecordExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Record of type &apos;{0}&apos; with property &apos;{1}&apos; equals to value &apos;{2}&apos; not found..
         /// </summary>
         public static string RecordNotFound {

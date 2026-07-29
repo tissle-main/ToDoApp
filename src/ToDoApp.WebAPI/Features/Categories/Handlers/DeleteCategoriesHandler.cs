@@ -1,22 +1,33 @@
-﻿using Mediator;
-using ToDoApp.Data;
-using FluentResults;
-using ToDoApp.WebAPI.Resources;
-using ToDoApp.WebAPI.Extensions;
+﻿using FluentResults;
+using Mediator;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using ToDoApp.Data;
+using ToDoApp.Data.Features.Auth.Users;
 using ToDoApp.Data.Features.Categories;
+using ToDoApp.Data.Features.Tasks_Categories;
+using ToDoApp.WebAPI.Extensions;
+using ToDoApp.WebAPI.Features.Tasks_Categories;
+using ToDoApp.WebAPI.Resources;
 
 namespace ToDoApp.WebAPI.Features.Categories.Handlers;
 
 public sealed class DeleteCategoriesHandler(
     AppDbContext thisDbContext,
-    ILogger<DeleteCategoriesHandler> thisLogger
+    IJoinHandler<Task_Category_JoinEntity> thisJoinHandler,
+    ILogger<DeleteCategoriesHandler> thisLogger,
+    IHttpContextAccessor thisHttpContext,
+    UserManager<ApplicationUser> thisUserManager
 ) : IRequestHandler<DeleteCategoriesCommand, Result>
 {
     #region Interfaces
     public async ValueTask<Result> Handle(DeleteCategoriesCommand request, CancellationToken cancellationToken)
     {
-        IQueryable<CategoryEntity> query = thisDbContext.Categories.AsNoTracking();
+        if(await thisUserManager.GetUserAsync(thisHttpContext.HttpContext!.User) is not ApplicationUser user)
+        {
+            return Result.Fail("").WithStatusCode(StatusCodes.Status401Unauthorized).LogTo(thisLogger);
+        }
+        IQueryable<CategoryEntity> query = thisDbContext.Categories.AsNoTracking().Where(c => c.UserId == user.Id);
         if(request.Ids.Length == 0)
         {
             thisDbContext.RemoveRange(await query.ToArrayAsync(cancellationToken));
@@ -30,6 +41,13 @@ public sealed class DeleteCategoriesHandler(
             string idsString = string.Join(", ", missingIds);
             string msg = string.Format(ErrorMessages.RecordsNotFound, nameof(CategoryEntity), nameof(CategoryEntity.Id), idsString);
             return Result.Fail(msg).LogTo(thisLogger).WithStatusCode(StatusCodes.Status404NotFound);
+        }
+        Guid[] ids = entities.Select(e => e.Id).ToArray();
+        List<Task_Category_JoinEntity> joinEntities = await thisDbContext.Tasks_Categories.Where(je => ids.Contains(je.CategoryId)).ToListAsync(cancellationToken);
+        Result result = await thisJoinHandler.Handle(joinEntities, [], cancellationToken);
+        if(result.IsFailed)
+        {
+            return result;
         }
         thisDbContext.Categories.RemoveRange(entities);
         await thisDbContext.SaveChangesAsync(cancellationToken);

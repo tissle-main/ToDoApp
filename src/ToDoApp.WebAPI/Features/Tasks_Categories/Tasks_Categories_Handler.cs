@@ -3,15 +3,19 @@ using FluentResults;
 using ToDoApp.WebAPI.Resources;
 using ToDoApp.WebAPI.Extensions;
 using ToDoApp.Data.Features.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ToDoApp.Data.Features.Categories;
+using ToDoApp.Data.Features.Auth.Users;
 using ToDoApp.Data.Features.Tasks_Categories;
 
 namespace ToDoApp.WebAPI.Features.Tasks_Categories;
 
 public sealed class Tasks_Categories_JoinHandler(
     AppDbContext thisDbContext,
-    ILogger<Tasks_Categories_JoinHandler> thisLogger
+    ILogger<Tasks_Categories_JoinHandler> thisLogger,
+    IHttpContextAccessor thisHttpContext,
+    UserManager<ApplicationUser> thisUserManager
 ) : IJoinHandler<Task_Category_JoinEntity>
 {
     #region Interfaces
@@ -21,6 +25,10 @@ public sealed class Tasks_Categories_JoinHandler(
         CancellationToken cancellationToken
     )
     {
+        if(await thisUserManager.GetUserAsync(thisHttpContext.HttpContext!.User) is not ApplicationUser user)
+        {
+            return Result.Fail("").WithStatusCode(StatusCodes.Status401Unauthorized).LogTo(thisLogger);
+        }
         if(oldList.Count == 0 && newList.Count == 0)
         {
             return Result.Ok();
@@ -28,7 +36,11 @@ public sealed class Tasks_Categories_JoinHandler(
         if(newList.Count > 0)
         {
             Guid[] ids = newList.Select(e => e.TaskId).Distinct().ToArray();
-            HashSet<Guid> existingIds = await thisDbContext.Tasks.AsNoTracking().Where(t => ids.Contains(t.Id)).Select(t => t.Id).ToHashSetAsync(cancellationToken);
+            HashSet<Guid> existingIds = await thisDbContext.Tasks.AsNoTracking()
+                .Where(t => t.UserId == user.Id)
+                .Where(t => ids.Contains(t.Id))
+                .Select(t => t.Id)
+                .ToHashSetAsync(cancellationToken);
             Guid[] missingIds = ids.Except(existingIds).ToArray();
             if(missingIds.Length > 0)
             {
@@ -38,7 +50,11 @@ public sealed class Tasks_Categories_JoinHandler(
             }
 
             ids = newList.Select(e => e.CategoryId).Distinct().ToArray();
-            existingIds = await thisDbContext.Categories.AsNoTracking().Where(t => ids.Contains(t.Id)).Select(t => t.Id).ToHashSetAsync(cancellationToken);
+            existingIds = await thisDbContext.Categories.AsNoTracking()
+                .Where(t => t.UserId == user.Id)
+                .Where(t => ids.Contains(t.Id))
+                .Select(t => t.Id)
+                .ToHashSetAsync(cancellationToken);
             missingIds = ids.Except(existingIds).ToArray();
             if(missingIds.Length > 0)
             {

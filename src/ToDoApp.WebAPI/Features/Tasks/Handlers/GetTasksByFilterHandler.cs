@@ -1,24 +1,32 @@
-﻿using Mediator;
-using ToDoApp.Data;
-using FluentResults;
-using ToDoApp.WebAPI.Resources;
-using ToDoApp.WebAPI.Extensions;
-using ToDoApp.Data.Features.Tasks;
+﻿using FluentResults;
+using Mediator;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using ToDoApp.Data;
+using ToDoApp.Data.Features.Auth.Users;
 using ToDoApp.Data.Features.Categories;
+using ToDoApp.Data.Features.Tasks;
+using ToDoApp.WebAPI.Extensions;
 using ToDoApp.WebAPI.Features.Tasks.Dtos;
+using ToDoApp.WebAPI.Resources;
 
 namespace ToDoApp.WebAPI.Features.Tasks.Handlers;
 
 public sealed class GetTasksByFilterHandler(
     AppDbContext thisDbContext,
-    ILogger<GetTasksByFilterHandler> thisLogger
+    ILogger<GetTasksByFilterHandler> thisLogger,
+    IHttpContextAccessor thisHttpContext,
+    UserManager<ApplicationUser> thisUserManager
 ) : IRequestHandler<GetTasksByFilterQuery, Result<TaskDto[]>>
 {
     #region Interfaces
     public async ValueTask<Result<TaskDto[]>> Handle(GetTasksByFilterQuery request, CancellationToken cancellationToken)
     {
-        IQueryable<TaskEntity> query = thisDbContext.Tasks.AsNoTracking().Include(e => e.Categories);
+        if(await thisUserManager.GetUserAsync(thisHttpContext.HttpContext!.User) is not ApplicationUser user)
+        {
+            return Result.Fail("").WithStatusCode(StatusCodes.Status401Unauthorized).LogTo(thisLogger);
+        }
+        IQueryable<TaskEntity> query = thisDbContext.Tasks.AsNoTracking().Include(e => e.Categories).Where(e => e.UserId == user.Id);
         if(request.CategoryId is Guid id)
         {
             CategoryEntity? category = await thisDbContext.Categories.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id, cancellationToken);

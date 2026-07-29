@@ -2,17 +2,20 @@
 using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using ToDoApp.WebAPI.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using ToDoApp.WebAPI.Features.Categories.Dtos;
 using ToDoApp.WebAPI.Features.Categories.Handlers;
 
 namespace ToDoApp.WebAPI.Features.Categories;
 
+[Authorize]
 [ApiController]
 [Route("/api")]
 public sealed class CategoryController : ControllerBase
 {
     [HttpGet("/category", Name = nameof(GetCategories))]
     [ProducesResponseType<CategoryDto[]>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCategories(
         [FromQuery] Guid[] ids,
@@ -26,6 +29,7 @@ public sealed class CategoryController : ControllerBase
 
     [HttpPost("/category", Name = nameof(CreateCategory))]
     [ProducesResponseType<Guid>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType<HttpValidationProblemDetails>(StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> CreateCategory(
         [FromBody] CategoryDto dto,
@@ -39,6 +43,7 @@ public sealed class CategoryController : ControllerBase
 
     [HttpPut("/category", Name = nameof(UpdateCategory))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<HttpValidationProblemDetails>(StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> UpdateCategory(
@@ -53,6 +58,7 @@ public sealed class CategoryController : ControllerBase
 
     [HttpDelete("/category", Name = nameof(DeleteCategories))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteCategories(
         [FromQuery] Guid[] ids,

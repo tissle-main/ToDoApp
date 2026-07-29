@@ -1,5 +1,7 @@
 ﻿using FluentResults;
+using ToDoApp.WebAPI.Resources;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.WebUtilities;
 
@@ -12,16 +14,18 @@ public static class FluentResultExtensions
 
     private static ProblemDetails ToProblemDetails(IEnumerable<IError> errors, int statusCode)
     {
+        IEnumerable<string> msgs = errors.Select(e => e.Message).Where(m => !string.IsNullOrWhiteSpace(m));
         return new ProblemDetails()
         {
             Title = ReasonPhrases.GetReasonPhrase(statusCode),
-            Detail = string.Join(' ', errors.Select(e => e.Message)),
+            Detail = string.Join(' ', msgs),
             Status = statusCode
         };
     }
     public static Result LogTo<TLogger>(this Result result, ILogger<TLogger> logger, LogLevel logLevel = LogLevel.Error)
     {
-        string msg = string.Join(' ', result.Reasons.Select(r => r.Message));
+        IEnumerable<string> errors = result.Reasons.Select(r => r.Message).Where(m => !string.IsNullOrWhiteSpace(m));
+        string msg = string.Join(' ', errors);
 #pragma warning disable CA2254
         logger.Log(logLevel, msg);
 #pragma warning restore CA2254
@@ -29,7 +33,8 @@ public static class FluentResultExtensions
     }
     public static Result<TResult> LogTo<TResult, TLogger>(this Result<TResult> result, ILogger<TLogger> logger, LogLevel logLevel = LogLevel.Error)
     {
-        string msg = string.Join(' ', result.Reasons.Select(r => r.Message));
+        IEnumerable<string> errors = result.Reasons.Select(r => r.Message).Where(m => !string.IsNullOrWhiteSpace(m));
+        string msg = string.Join(' ', errors);
 #pragma warning disable CA2254
         logger.Log(logLevel, msg);
 #pragma warning restore CA2254
@@ -154,5 +159,45 @@ public static class FluentResultExtensions
                 return new BadRequestObjectResult(ToProblemDetails(result.Errors, StatusCodes.Status400BadRequest));
             }
         }
+    }
+    public static Result ToFluentResult(this IdentityResult identityResult)
+    {
+        if(identityResult.Succeeded)
+        {
+            return Result.Ok();
+        }
+        return Result.Fail(identityResult.Errors.Select(e => e.Description));
+    }
+    public static Result<T?> ToFluentResult<T>(this IdentityResult identityResult, T? value = default)
+    {
+        if(identityResult.Succeeded)
+        {
+            return Result.Ok(value);
+        }
+        return Result.Fail<T?>(identityResult.Errors.Select(e => e.Description));
+    }
+    public static Result ToFluentResult(this Microsoft.AspNetCore.Identity.SignInResult signInResult)
+    {
+        if(signInResult.Succeeded)
+        {
+            return Result.Ok();
+        }
+        if(signInResult.IsLockedOut || signInResult.IsNotAllowed || signInResult.RequiresTwoFactor)
+        {
+            return Result.Fail(signInResult.ToString());
+        }
+        return Result.Fail(ErrorMessages.InvalidPassword);
+    }
+    public static Result<T?> ToFluentResult<T>(this Microsoft.AspNetCore.Identity.SignInResult signInResult, T? value = default)
+    {
+        if(signInResult.Succeeded)
+        {
+            return Result.Ok(value);
+        }
+        if(signInResult.IsLockedOut || signInResult.IsNotAllowed || signInResult.RequiresTwoFactor)
+        {
+            return Result.Fail<T?>(signInResult.ToString());
+        }
+        return Result.Fail<T?>(ErrorMessages.InvalidPassword);
     }
 }
