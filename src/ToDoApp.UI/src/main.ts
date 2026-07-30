@@ -9,6 +9,8 @@ import { authInterceptor } from './app/features/auth/auth.http.interceptor';
 import { RegisterPage } from './app/pages/register.page/register.page';
 import { LoginPage } from './app/pages/login.page/login.page';
 import { guestGuard } from './app/features/auth/guest.guard';
+import { MainPage } from './app/pages/main.page/main.page';
+import { authGuard } from './app/features/auth/auth.guard';
 
 const routes: Routes = [
   {
@@ -20,6 +22,11 @@ const routes: Routes = [
     path: "login",
     component: LoginPage,
     canActivate: [guestGuard]
+  },
+  {
+    path: "",
+    component: MainPage,
+    canActivate: [authGuard]
   }
 ];
 const appConfig: ApplicationConfig = {

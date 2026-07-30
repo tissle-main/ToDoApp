@@ -44,7 +44,7 @@ export class LoginPage
       finalize(() => this.loading.set(false))
     ).subscribe({
       next: () => this.router.navigate(['/']),
-      error: this.error.set
+      error: err => this.error.set(err)
     });
   }
 }

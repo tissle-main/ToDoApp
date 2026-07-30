@@ -57,7 +57,7 @@ export class RegisterPage
       finalize(() => this.loading.set(false))
     ).subscribe({
       next: () => this.router.navigate(['/login']),
-      error: this.error.set
+      error: err => this.error.set(err)
     });
   }
 }

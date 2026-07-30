@@ -8,7 +8,8 @@ export class AuthService
 {
   private readonly api = inject(Api);
   private readonly authTokenStore = inject(AuthTokenStore);
-  public readonly isAuthenticated = computed(this.authTokenStore.isAuthenticated);
+  public readonly isAuthenticated = computed(() => this.authTokenStore.isAuthenticated());
+  public readonly email = computed(() => this.authTokenStore.email());
 
   public registerUser(request: RegisterUserCommand): Observable<void>
   {
@@ -17,13 +18,17 @@ export class AuthService
   public loginUser(request: LoginUserCommand): Observable<string>
   {
     return this.api.loginUser(request).pipe(
-      tap(this.authTokenStore.setToken)
+      tap(token => this.authTokenStore.setToken(token, request.email ?? ""))
     );
+  }
+  public logoutUser()
+  {
+    this.authTokenStore.removeToken();
   }
   public deleteUser(): Observable<void>
   {
     return this.api.deleteUser().pipe(
-      tap(this.authTokenStore.removeToken)
+      tap(() => this.logoutUser())
     );
   }
 }
