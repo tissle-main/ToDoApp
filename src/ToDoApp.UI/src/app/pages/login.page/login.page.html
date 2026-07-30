@@ -1,0 +1,105 @@
+<div class="flex min-h-screen items-center justify-center bg-gray-100">
+  <div class="w-full max-w-md rounded-xl bg-white p-8 shadow-lg">
+    <h1 class="mb-2 text-center text-3xl font-bold text-gray-900">
+      Sign in
+    </h1>
+
+    <p class="mb-6 text-center text-sm text-gray-500">
+      Sign in to your account
+    </p>
+
+    <form [formGroup]="loginForm"
+          (ngSubmit)="onSubmit()"
+          class="space-y-5">
+
+      <div>
+        <label for="email"
+               class="mb-2 block text-sm font-medium text-gray-700">
+          Email
+        </label>
+
+        <input id="email"
+               type="email"
+               formControlName="email"
+               class="w-full rounded-lg border px-4 py-3 transition outline-none"
+               [class.border-gray-300]="!loginForm.controls.email.invalid || !loginForm.controls.email.touched"
+               [class.border-red-500]="loginForm.controls.email.invalid && loginForm.controls.email.touched"
+               [class.focus:border-blue-500]="!loginForm.controls.email.invalid"
+               [class.focus:ring-2]="!loginForm.controls.email.invalid"
+               [class.focus:ring-blue-500/20]="!loginForm.controls.email.invalid"
+               [class.focus:border-red-500]="loginForm.controls.email.invalid"
+               [class.focus:ring-red-500/20]="loginForm.controls.email.invalid" />
+
+        @if (loginForm.controls.email.touched) {
+
+        @if (loginForm.controls.email.hasError('required')) {
+        <p class="mt-1 text-sm text-red-600">
+          Email is required.
+        </p>
+        }
+
+        @if (loginForm.controls.email.hasError('email')) {
+        <p class="mt-1 text-sm text-red-600">
+          Enter a valid email address.
+        </p>
+        }
+
+        }
+      </div>
+
+      <div>
+        <label for="password"
+               class="mb-2 block text-sm font-medium text-gray-700">
+          Password
+        </label>
+
+        <input id="password"
+               type="password"
+               formControlName="password"
+               class="w-full rounded-lg border px-4 py-3 transition outline-none"
+               [class.border-gray-300]="!loginForm.controls.password.invalid || !loginForm.controls.password.touched"
+               [class.border-red-500]="loginForm.controls.password.invalid && loginForm.controls.password.touched"
+               [class.focus:border-blue-500]="!loginForm.controls.password.invalid"
+               [class.focus:ring-2]="!loginForm.controls.password.invalid"
+               [class.focus:ring-blue-500/20]="!loginForm.controls.password.invalid"
+               [class.focus:border-red-500]="loginForm.controls.password.invalid"
+               [class.focus:ring-red-500/20]="loginForm.controls.password.invalid" />
+
+        @if (loginForm.controls.password.touched) {
+
+        @if (loginForm.controls.password.hasError('required')) {
+        <p class="mt-1 text-sm text-red-600">
+          Password is required.
+        </p>
+        }
+
+        @if (loginForm.controls.password.hasError('pattern')) {
+        <p class="mt-1 text-sm text-red-600">
+          Password must contain at least 8 letters or digits.
+        </p>
+        }
+
+        }
+      </div>
+
+      @if (error()) {
+      <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        {{ error()?.message ?? 'Login failed.' }}
+      </div>
+      }
+
+      <button type="submit"
+              class="w-full rounded-lg bg-blue-600 px-4 py-3 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              [disabled]="loginForm.invalid || loading()">
+
+        @if (loading()) {
+        Signing in...
+        } @else {
+        Sign in
+        }
+
+      </button>
+
+    </form>
+  </div>
+</div>

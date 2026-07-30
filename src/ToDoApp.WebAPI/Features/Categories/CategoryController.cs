@@ -10,7 +10,6 @@ namespace ToDoApp.WebAPI.Features.Categories;
 
 [Authorize]
 [ApiController]
-[Route("/api")]
 public sealed class CategoryController : ControllerBase
 {
     [HttpGet("/category", Name = nameof(GetCategories))]

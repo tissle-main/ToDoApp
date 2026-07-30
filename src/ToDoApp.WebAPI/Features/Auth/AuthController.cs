@@ -8,10 +8,9 @@ using ToDoApp.WebAPI.Features.Auth.Handlers;
 namespace ToDoApp.WebAPI.Features.Auth;
 
 [ApiController]
-[Route("/api/auth")]
 public sealed class AuthController : ControllerBase
 {
-    [HttpPost("/register", Name = nameof(RegisterUser))]
+    [HttpPost("/auth/register", Name = nameof(RegisterUser))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
@@ -26,7 +25,7 @@ public sealed class AuthController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPost("/login", Name = nameof(LoginUser))]
+    [HttpPost("/auth/login", Name = nameof(LoginUser))]
     [ProducesResponseType<string>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
@@ -42,7 +41,7 @@ public sealed class AuthController : ControllerBase
     }
 
     [Authorize]
-    [HttpDelete("/", Name = nameof(DeleteUser))]
+    [HttpDelete("/auth", Name = nameof(DeleteUser))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]

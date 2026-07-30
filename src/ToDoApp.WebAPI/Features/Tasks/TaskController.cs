@@ -10,7 +10,6 @@ namespace ToDoApp.WebAPI.Features.Tasks;
 
 [Authorize]
 [ApiController]
-[Route("/api")]
 public sealed class TaskController : ControllerBase
 {
     [HttpGet("/task", Name = nameof(GetTasks))]
