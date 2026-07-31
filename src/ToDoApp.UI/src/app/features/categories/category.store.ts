@@ -1,6 +1,6 @@
 import { inject, Service, signal } from "@angular/core";
 import { Api, CategoryDto } from "../../api";
-import { finalize } from "rxjs";
+import { finalize, switchMap } from "rxjs";
 
 @Service()
 export class CategoryStore
@@ -17,19 +17,49 @@ export class CategoryStore
       finalize(() => this.loading.set(false))
     ).subscribe({
       next: categories => this.categories.set(categories),
-      error: err => this.error.set(err.message)
+      error: err => this.error.set(err)
     });
   }
   public create(dto: CategoryDto)
   {
-    this.api.createCategory(dto).subscribe();
+    this.api.createCategory(dto).pipe(
+      switchMap(id => this.api.getCategories([id]))
+    ).subscribe({
+      next: categories =>
+      {
+        const newCategory = categories[0];
+        this.categories.update(oldCategories => [...oldCategories, newCategory])
+      },
+      error: err => this.error.set(err)
+    });
   }
   public update(dto: CategoryDto)
   {
-    this.api.updateCategory(dto).subscribe();
+    this.api.updateCategory(dto).pipe(
+      switchMap(() => this.api.getCategories([dto.id!]))
+    ).subscribe({
+      next: categories =>
+      {
+        const updatedCategory = categories[0];
+        this.categories.update(categories =>
+        {
+          return categories.map(category => category.id === updatedCategory.id ? updatedCategory : category)
+        });
+      },
+      error: err => this.error.set(err)
+    });
   }
   public delete(id: string)
   {
-    this.api.deleteCategories([id]).subscribe();
+    this.api.deleteCategories([id]).subscribe({
+      next: () =>
+      {
+        this.categories.update(oldCategories =>
+        {
+          return [...oldCategories.filter(value => value.id !== id)];
+        });
+      },
+      error: err => this.error.set(err)
+    });
   }
 }

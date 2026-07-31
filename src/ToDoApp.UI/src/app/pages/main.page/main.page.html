@@ -6,7 +6,8 @@
       <button class="cursor-pointer rounded bg-red-600 px-2 py-1 font-medium text-white transition hover:bg-red-700" (click)="deleteUser()">Delete</button>
     </div>
   </div>
-  <div class="flex-1">
-    Main block
+  <div class="flex flex-1 flex-row">
+    <app-category-list class="w-1/4 shadow" />
+    <app-task-list class="flex-1" />
   </div>
 </div>

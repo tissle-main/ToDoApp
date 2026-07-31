@@ -1,0 +1,97 @@
+@if (!editing()) {
+
+<div class="flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-1 shadow-sm">
+
+  <span class="truncate font-medium text-gray-800">
+    {{ category().name }}
+  </span>
+
+  <div class="flex items-center gap-1">
+
+    <button type="button"
+            (click)="startEditing()"
+            class="rounded-md p-1 text-blue-600 transition hover:bg-blue-100"
+            title="Edit">
+
+      ✏️
+
+    </button>
+
+    <button type="button"
+            (click)="remove()"
+            class="rounded-md p-1 text-red-600 transition hover:bg-red-100"
+            title="Delete">
+
+      🗑️
+
+    </button>
+
+  </div>
+
+</div>
+
+} @else {
+
+<form [formGroup]="form"
+      (ngSubmit)="save()"
+      class="flex flex-col gap-2">
+
+  <div class="flex flex-col gap-2">
+
+    <div class="flex w-full items-center rounded-xl border border-gray-300 bg-white px-3 py-1 focus-within:ring-2"
+         [class.border-gray-300]="!form.controls.name.invalid || !form.controls.name.touched"
+         [class.border-red-500]="form.controls.name.invalid && form.controls.name.touched"
+         [class.focus-within:border-blue-500]="!form.controls.name.invalid"
+         [class.focus-within:border-red-500]="form.controls.name.invalid"
+         [class.focus-within:ring-blue-500/20] ="!form.controls.name.invalid"
+         [class.focus-within:ring-red-500/20] ="form.controls.name.invalid">
+
+      <input type="text"
+             formControlName="name"
+             placeholder="Category name..."
+             class="flex-1 border-none bg-transparent outline-none" />
+
+      <div class="flex items-center gap-1">
+
+        <button type="submit"
+                class="rounded-md p-1 text-green-600 transition hover:bg-green-100"
+                title="Save">
+
+          ✓
+
+        </button>
+
+        <button type="button"
+                (click)="cancel()"
+                class="rounded-md p-1 text-gray-500 transition hover:bg-gray-100"
+                title="Cancel">
+
+          ✕
+
+        </button>
+
+      </div>
+
+    </div>
+
+    @if (form.controls.name.touched) {
+
+    @if (form.controls.name.hasError('required')) {
+    <p class="text-sm text-red-600">
+      Category name is required.
+    </p>
+    }
+
+    @if (form.controls.name.hasError('maxlength')) {
+    <p class="text-sm text-red-600">
+      Category name must be less than 50 chars.
+    </p>
+    }
+
+    }
+
+  </div>
+
+</form>
+
+}

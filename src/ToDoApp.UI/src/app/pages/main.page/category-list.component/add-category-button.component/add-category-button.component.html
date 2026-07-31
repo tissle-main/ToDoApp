@@ -1,0 +1,71 @@
+@if (!adding()) {
+
+<button type="button"
+        (click)="startAdding()"
+        class="flex h-full w-full cursor-pointer items-center justify-center rounded-xl bg-blue-600 p-2 text-white transition hover:bg-blue-700">
+  Add Category
+</button>
+
+} @else {
+
+<form [formGroup]="form"
+      (ngSubmit)="save()"
+      class="flex flex-col gap-2">
+
+  <div class="flex flex-col items-start gap-2">
+
+    <div class="flex w-full items-center rounded-xl border border-gray-300 bg-white px-3 py-1 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20"
+         [class.border-gray-300]="!form.controls.name.invalid || !form.controls.name.touched"
+         [class.border-red-500]="form.controls.name.invalid && form.controls.name.touched"
+         [class.focus:border-blue-500]="!form.controls.name.invalid"
+         [class.focus:border-red-500]="form.controls.name.invalid">
+
+      <input type="text"
+             formControlName="name"
+             placeholder="Category name..."
+             class="flex-1 border-none bg-transparent outline-none" />
+
+      <div class="ml-2 flex items-center gap-1">
+
+        <button type="submit"
+                class="rounded-md p-1 text-green-600 transition hover:bg-green-100"
+                title="Save">
+
+          ✓
+
+        </button>
+
+        <button type="button"
+                (click)="cancel()"
+                class="rounded-md p-1 text-gray-500 transition hover:bg-gray-100"
+                title="Cancel">
+
+          ✕
+
+        </button>
+
+      </div>
+
+    </div>
+
+    @if (form.controls.name.touched) {
+
+    @if (form.controls.name.hasError('required')) {
+    <p class="mt-1 text-sm text-red-600">
+      Category name is required.
+    </p>
+    }
+
+    @if (form.controls.name.hasError('maxlength')) {
+    <p class="mt-1 text-sm text-red-600">
+      Category name must be less than 50 chars.
+    </p>
+    }
+
+    }
+
+  </div>
+
+</form>
+
+}
