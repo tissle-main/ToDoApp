@@ -1,0 +1,8 @@
+﻿<button class="flex aspect-square items-center justify-center border p-2"
+        [class.bg-white]="!isActive()"
+        [class.cursor-pointer]="!isActive()"
+        [class.hover:brightness-90]="!isActive()"
+        [class.active:brightness-75]="!isActive()"
+        [class.bg-blue-600]="isActive()"
+        [class.text-white]="isActive()"
+        (click)="onClick()">{{ pageNumber() }}</button>
