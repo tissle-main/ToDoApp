@@ -4,7 +4,6 @@ using OpenTelemetry.Metrics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -13,7 +12,6 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 namespace Microsoft.Extensions.Hosting;
 #pragma warning restore IDE0130
 
-[ExcludeFromCodeCoverage]
 public static class Extensions
 {
     private const string HealthEndpointPath = "/health";

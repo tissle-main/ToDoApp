@@ -15,40 +15,56 @@ public sealed class ToDoAppFixture : IAsyncLifetime
     private Respawner Respawner { get; set; } = null!; //Init after InitializedAsync
     public HttpClient HttpClient { get; private set; } = null!; //Init after InitializedAsync
 
-    public async ValueTask ExecuteAsync(Func<AppDbContext, ValueTask> func)
+    public async ValueTask ExecuteDbContextAsync(Func<AppDbContext, ValueTask> func)
     {
         await using AppDbContext context = new(DbOptions);
         await func(context);
     }
     public async ValueTask ResetDatabaseAsync()
     {
-        await using SqlConnection connection = new(ConnectionString);
-        await connection.OpenAsync();
-        await Respawner.ResetAsync(connection);
+        while(true)
+        {
+            try
+            {
+                TestContext.Current.CancellationToken.ThrowIfCancellationRequested();
+                await using SqlConnection connection = new(ConnectionString);
+                await connection.OpenAsync();
+                await Respawner.ResetAsync(connection);
+                return;
+            }
+            catch { }
+        }
     }
     #endregion
 
     #region Interfaces
     public async ValueTask InitializeAsync()
     {
-        await Application.StartAsync(TestContext.Current.CancellationToken);
-        HttpClient = Application.CreateHttpClient(ToDoAppResources.WebAPI);
-        ConnectionString = await Application.GetConnectionString(ToDoAppResources.Database) ?? throw new NullReferenceException("ConnectionString is null");
-        DbOptions = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(ConnectionString).Options;
-        await ExecuteAsync(async db =>
+        while(true)
         {
-            Console.WriteLine("Applying migrations...");
-            await db.Database.MigrateAsync();
-            Console.WriteLine("Migrations applied");
-        });
+            try
+            {
+                TestContext.Current.CancellationToken.ThrowIfCancellationRequested();
+                await Application.StartAsync(TestContext.Current.CancellationToken);
+                HttpClient = Application.CreateHttpClient(AppResources.Web);
+                ConnectionString = await Application.GetConnectionString(AppResources.Database) ?? throw new NullReferenceException("ConnectionString is null");
+                DbOptions = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(ConnectionString).Options;
+                await ExecuteDbContextAsync(async db =>
+                {
+                    await db.Database.MigrateAsync(TestContext.Current.CancellationToken);
+                });
 
-        await using SqlConnection connection = new(ConnectionString);
-        await connection.OpenAsync();
-        Respawner = await Respawner.CreateAsync(connection, new RespawnerOptions()
-        {
-            DbAdapter = DbAdapter.SqlServer,
-            TablesToIgnore = ["__EFMigrationsHistory"]
-        });
+                await using SqlConnection connection = new(ConnectionString);
+                await connection.OpenAsync();
+                Respawner = await Respawner.CreateAsync(connection, new RespawnerOptions()
+                {
+                    DbAdapter = DbAdapter.SqlServer,
+                    TablesToIgnore = ["__EFMigrationsHistory"]
+                });
+                return;
+            }
+            catch { }
+        }
     }
     public async ValueTask DisposeAsync()
     {

@@ -1,6 +1,6 @@
 <Solution>
   <Project Path="ToDoApp.AppHost/ToDoApp.AppHost.csproj" Id="0a9b0973-a9c8-44cb-85f3-8730e842f7d1" />
-  <Project Path="ToDoApp.Data/ToDoApp.Data.csproj" />
+  <Project Path="ToDoApp.Data/ToDoApp.Data.csproj" Id="e892228c-774b-4af4-8caf-12d33397bd3a" />
   <Project Path="ToDoApp.IntegrationTests/ToDoApp.IntegrationTests.csproj" Id="16983abf-b713-44c5-9d13-c6540954fc57" />
   <Project Path="ToDoApp.ServiceDefaults/ToDoApp.ServiceDefaults.csproj" />
   <Project Path="ToDoApp.UI/ToDoApp.UI.esproj">
@@ -8,5 +8,5 @@
     <Deploy />
   </Project>
   <Project Path="ToDoApp.UnitTests/ToDoApp.UnitTests.csproj" Id="1b2f0bf0-6d81-4310-a302-50e7d6b17dbd" />
-  <Project Path="ToDoApp.WebAPI/ToDoApp.WebAPI.csproj" />
+  <Project Path="ToDoApp.Web/ToDoApp.Web.csproj" Id="1fcb4a47-b187-4659-bccb-17568d15720a" />
 </Solution>

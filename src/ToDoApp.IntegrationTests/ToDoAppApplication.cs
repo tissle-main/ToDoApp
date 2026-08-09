@@ -1,4 +1,5 @@
 ﻿using Projects;
+using Aspire.Hosting;
 
 namespace ToDoApp.IntegrationTests;
 

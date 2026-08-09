@@ -125,7 +125,34 @@ namespace ToDoApp.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ToDoApp.Data.Features.Auth.Roles.ApplicationRole", b =>
+            modelBuilder.Entity("ToDoApp.Data.Features.Auth.RefreshTokens.RefreshTokenEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RefreshToken")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RefreshToken")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("ToDoApp.Data.Features.Auth.Roles.RoleEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -153,7 +180,7 @@ namespace ToDoApp.Data.Migrations
                     b.ToTable("AspNetRoles", (string)null);
                 });
 
-            modelBuilder.Entity("ToDoApp.Data.Features.Auth.Users.ApplicationUser", b =>
+            modelBuilder.Entity("ToDoApp.Data.Features.Auth.Users.UserEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -219,74 +246,9 @@ namespace ToDoApp.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("ToDoApp.Data.Features.Categories.CategoryEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("ToDoApp.Data.Features.Tasks.TaskEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(400)
-                        .HasColumnType("nvarchar(400)");
-
-                    b.Property<bool>("Done")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Tasks");
-                });
-
-            modelBuilder.Entity("ToDoApp.Data.Features.Tasks_Categories.Task_Category_JoinEntity", b =>
-                {
-                    b.Property<Guid>("TaskId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("TaskId", "CategoryId");
-
-                    b.HasIndex("CategoryId");
-
-                    b.ToTable("Tasks_Categories");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
-                    b.HasOne("ToDoApp.Data.Features.Auth.Roles.ApplicationRole", null)
+                    b.HasOne("ToDoApp.Data.Features.Auth.Roles.RoleEntity", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -295,7 +257,7 @@ namespace ToDoApp.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
-                    b.HasOne("ToDoApp.Data.Features.Auth.Users.ApplicationUser", null)
+                    b.HasOne("ToDoApp.Data.Features.Auth.Users.UserEntity", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -304,7 +266,7 @@ namespace ToDoApp.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
-                    b.HasOne("ToDoApp.Data.Features.Auth.Users.ApplicationUser", null)
+                    b.HasOne("ToDoApp.Data.Features.Auth.Users.UserEntity", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -313,13 +275,13 @@ namespace ToDoApp.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
                 {
-                    b.HasOne("ToDoApp.Data.Features.Auth.Roles.ApplicationRole", null)
+                    b.HasOne("ToDoApp.Data.Features.Auth.Roles.RoleEntity", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ToDoApp.Data.Features.Auth.Users.ApplicationUser", null)
+                    b.HasOne("ToDoApp.Data.Features.Auth.Users.UserEntity", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -328,69 +290,27 @@ namespace ToDoApp.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
-                    b.HasOne("ToDoApp.Data.Features.Auth.Users.ApplicationUser", null)
+                    b.HasOne("ToDoApp.Data.Features.Auth.Users.UserEntity", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ToDoApp.Data.Features.Categories.CategoryEntity", b =>
+            modelBuilder.Entity("ToDoApp.Data.Features.Auth.RefreshTokens.RefreshTokenEntity", b =>
                 {
-                    b.HasOne("ToDoApp.Data.Features.Auth.Users.ApplicationUser", "User")
-                        .WithMany("Categories")
+                    b.HasOne("ToDoApp.Data.Features.Auth.Users.UserEntity", "User")
+                        .WithMany("RefreshTokens")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ToDoApp.Data.Features.Tasks.TaskEntity", b =>
+            modelBuilder.Entity("ToDoApp.Data.Features.Auth.Users.UserEntity", b =>
                 {
-                    b.HasOne("ToDoApp.Data.Features.Auth.Users.ApplicationUser", "User")
-                        .WithMany("Tasks")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ToDoApp.Data.Features.Tasks_Categories.Task_Category_JoinEntity", b =>
-                {
-                    b.HasOne("ToDoApp.Data.Features.Categories.CategoryEntity", "Category")
-                        .WithMany("Tasks")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ToDoApp.Data.Features.Tasks.TaskEntity", "Task")
-                        .WithMany("Categories")
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-
-                    b.Navigation("Task");
-                });
-
-            modelBuilder.Entity("ToDoApp.Data.Features.Auth.Users.ApplicationUser", b =>
-                {
-                    b.Navigation("Categories");
-
-                    b.Navigation("Tasks");
-                });
-
-            modelBuilder.Entity("ToDoApp.Data.Features.Categories.CategoryEntity", b =>
-                {
-                    b.Navigation("Tasks");
-                });
-
-            modelBuilder.Entity("ToDoApp.Data.Features.Tasks.TaskEntity", b =>
-                {
-                    b.Navigation("Categories");
+                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }
