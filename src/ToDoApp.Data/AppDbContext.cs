@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using ToDoApp.Data.Features.Auth.Roles;
-using ToDoApp.Data.Features.Auth.Users;
-using ToDoApp.Data.Shared.KeyedEntities;
-using ToDoApp.Data.Features.Auth.RefreshTokens;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+﻿using ToDoApp.Data.Features.Auth;
+using ToDoApp.Data.Features.Tasks;
+using ToDoApp.Data.Shared.Entities;
+using Microsoft.EntityFrameworkCore;
+using ToDoApp.Data.Features.Categories;
+using ToDoApp.Data.Features.Tasks_Categories;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace ToDoApp.Data;
@@ -12,6 +12,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : Ident
 {
     #region Instance
     public DbSet<RefreshTokenEntity> RefreshTokens { get; set; } = null!; //Init by EFCore
+    public DbSet<TaskEntity> Tasks { get; set; } = null!; //Init by EFCore
+    public DbSet<CategoryEntity> Categories { get; set; } = null!; //Init by EFCore
+    public DbSet<Task_Category_JoinEntity> Tasks_Categories { get; set; } = null!; //Init by EFCore
     #endregion
 
     #region Base
@@ -22,24 +25,12 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : Ident
     }
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
-        foreach(EntityEntry<IKeyedEntity> entry in base.ChangeTracker.Entries<IKeyedEntity>())
-        {
-            if(entry.State is EntityState.Added)
-            {
-                entry.Entity.Id = Guid.CreateVersion7();
-            }
-        }
+        this.GenerateIdForKeyedEntities();
         return base.SaveChanges(acceptAllChangesOnSuccess);
     }
     public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
-        foreach(EntityEntry<IKeyedEntity> entry in base.ChangeTracker.Entries<IKeyedEntity>())
-        {
-            if(entry.State is EntityState.Added)
-            {
-                entry.Entity.Id = Guid.CreateVersion7();
-            }
-        }
+        this.GenerateIdForKeyedEntities();
         return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
     #endregion

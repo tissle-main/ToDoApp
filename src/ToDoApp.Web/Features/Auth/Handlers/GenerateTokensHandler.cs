@@ -1,11 +1,12 @@
 ﻿using ErrorOr;
 using Mediator;
 using ToDoApp.Data;
+using ToDoApp.Data.Features.Auth;
+using ToDoApp.Web.Shared.Behaviors;
 using Microsoft.Extensions.Options;
-using Microsoft.EntityFrameworkCore;
+using ToDoApp.Web.Features.Auth.Dtos;
 using ToDoApp.Web.Features.Auth.Options;
 using ToDoApp.Web.Features.Auth.Services;
-using ToDoApp.Data.Features.Auth.RefreshTokens;
 
 namespace ToDoApp.Web.Features.Auth.Handlers;
 
@@ -20,28 +21,27 @@ public sealed class GenerateTokensHandler(
     #region Interfaces
     public async ValueTask<ErrorOr<GenerateTokensResponse>> Handle(GenerateTokensCommand command, CancellationToken cancellationToken)
     {
-        ErrorOr<Unit> result = await thisMediator.Send(new RemoveRefreshTokensCommand(command.User), cancellationToken);
+        ErrorOr<Unit> result = await thisMediator.Send(new RemoveExpiredRefreshTokensCommand()
+        {
+            SaveDatabase = false
+        }, cancellationToken);
         if(result.IsError)
         {
             return result.Errors;
         }
 
-        string refreshToken;
-        do
-        {
-            refreshToken = await thisRefreshTokenGenerator.GenerateTokenAsync(RefreshTokenEntityConstants.RefreshTokenMaxLength / 2, cancellationToken);
-        }
-        while(await thisDbContext.RefreshTokens.AsNoTracking().FirstOrDefaultAsync(e => e.RefreshToken == refreshToken, cancellationToken) is not null);
+        string refreshToken = await thisRefreshTokenGenerator.GenerateTokenAsync(RefreshTokenEntityConstants.RefreshTokenMaxLength, cancellationToken);
         RefreshTokenEntity entity = new()
         {
-            RefreshToken = refreshToken,
-            ExpiresAt = DateTime.UtcNow.AddDays(tokenOptions.Value.RefreshTokenDurationInDays),
+            Value = refreshToken,
+            ExpiresAt = DateTime.UtcNow.AddDays(tokenOptions.Value.ExpireDays),
             UserId = command.User.Id,
         };
         await thisDbContext.RefreshTokens.AddAsync(entity, cancellationToken);
-        await thisDbContext.SaveChangesAsync(cancellationToken);
         string accessToken = await thisAccessTokenGenerator.GenerateTokenAsync(command.User, cancellationToken);
-        return new GenerateTokensResponse(accessToken, refreshToken);
+        return new GenerateTokensResponse(accessToken, entity.ToDto());
     }
     #endregion
 }
+public sealed record class GenerateTokensCommand(UserEntity User) : IDbSaveMessage, ICommand<ErrorOr<GenerateTokensResponse>>;
+public sealed record class GenerateTokensResponse(string AccessToken, RefreshTokenDto RefreshToken);

@@ -2,7 +2,6 @@
 using ToDoApp.Web.Shared.Fakers;
 using FluentValidation.TestHelper;
 using ToDoApp.Web.Features.Auth.Handlers;
-using ToDoApp.Web.Features.Auth.Validators;
 
 namespace ToDoApp.UnitTests.Features.Auth.Validators;
 
@@ -11,7 +10,7 @@ public sealed class RegisterUserCommandValidatorTests
     public RegisterUserCommandValidator Validator { get; } = new();
 
     [Fact]
-    public async Task Validator_ShouldPass_WhenCommandIsValid()
+    public async ValueTask Validator_ShouldPass_WhenCommandIsValid()
     {
         //Arrange
         RegisterUserCommand command = new Faker<RegisterUserCommand>().ValidInstance().Generate();
@@ -24,7 +23,7 @@ public sealed class RegisterUserCommandValidatorTests
     }
 
     [Fact]
-    public async Task Validator_ShouldNotPass_WhenEmailIsInvalid()
+    public async ValueTask Validator_ShouldNotPass_WhenEmailIsInvalid()
     {
         //Arrange
         RegisterUserCommand command = new Faker<RegisterUserCommand>().ValidInstance().WithInvalidEmail().Generate();
@@ -37,7 +36,7 @@ public sealed class RegisterUserCommandValidatorTests
     }
 
     [Fact]
-    public async Task Validator_ShouldNotPass_WhenPasswordTooShort()
+    public async ValueTask Validator_ShouldNotPass_WhenPasswordTooShort()
     {
         //Arrange
         RegisterUserCommand command = new Faker<RegisterUserCommand>().ValidInstance().WithTooShortPassword().Generate();
@@ -50,7 +49,7 @@ public sealed class RegisterUserCommandValidatorTests
     }
 
     [Fact]
-    public async Task Validator_ShouldNotPass_WhenPasswordDoNotContainUppercaseLetters()
+    public async ValueTask Validator_ShouldNotPass_WhenPasswordDoNotContainUppercaseLetters()
     {
         //Arrange
         RegisterUserCommand command = new Faker<RegisterUserCommand>().ValidInstance().WithPasswordWithoutUppercaseLetters().Generate();
@@ -63,7 +62,7 @@ public sealed class RegisterUserCommandValidatorTests
     }
 
     [Fact]
-    public async Task Validator_ShouldNotPass_WhenPasswordDoNotContainLowercaseLetters()
+    public async ValueTask Validator_ShouldNotPass_WhenPasswordDoNotContainLowercaseLetters()
     {
         //Arrange
         RegisterUserCommand command = new Faker<RegisterUserCommand>().ValidInstance().WithPasswordWithoutLowercaseLetters().Generate();
@@ -76,7 +75,7 @@ public sealed class RegisterUserCommandValidatorTests
     }
 
     [Fact]
-    public async Task Validator_ShouldNotPass_WhenPasswordDoNotContainDigits()
+    public async ValueTask Validator_ShouldNotPass_WhenPasswordDoNotContainDigits()
     {
         //Arrange
         RegisterUserCommand command = new Faker<RegisterUserCommand>().ValidInstance().WithPasswordWithoutDigits().Generate();

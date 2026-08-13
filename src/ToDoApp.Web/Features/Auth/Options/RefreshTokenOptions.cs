@@ -7,6 +7,6 @@ public sealed class RefreshTokenOptions
     #endregion
 
     #region Instance
-    public required int RefreshTokenDurationInDays { get; set; }
+    public required int ExpireDays { get; set; }
     #endregion
 }

@@ -2,42 +2,36 @@
 using AwesomeAssertions;
 using System.Net.Http.Json;
 using ToDoApp.Web.Shared.Fakers;
+using ToDoApp.Data.Features.Auth;
 using Microsoft.EntityFrameworkCore;
-using ToDoApp.Data.Features.Auth.Users;
+using ToDoApp.Web.Features.Auth.Dtos;
+using ToDoApp.IntegrationTests.Seeders;
 using ToDoApp.Web.Features.Auth.Handlers;
-using ToDoApp.Data.Features.Auth.RefreshTokens;
 
 namespace ToDoApp.IntegrationTests.Features.Auth;
 
 public sealed class RefreshAccessTokenHandlerTests(ToDoAppFixture thisApp)
 {
-    #region Static
-    public const string Path = "/auth/refresh";
-    #endregion
+    private Faker Faker { get; } = new();
 
-    #region Instance
     [Fact]
-    public async Task Handle_ShouldReplaceRefreshToken()
+    public async ValueTask Handler_ShouldReplaceRefreshToken()
     {
         //Arrange
         await thisApp.ResetDatabaseAsync();
-        (UserEntity user, _) = await RegisterUserHandlerTests.RegisterUserAsync(thisApp);
-        RefreshTokenEntity token = null!;
-        await thisApp.ExecuteDbContextAsync(async db =>
+        (UserEntity user, string password) = await thisApp.AddUsers2AndPickRandom();
+        string refreshToken = await thisApp.ExecuteDbContextAsync(async db =>
         {
-            token = new Faker<RefreshTokenEntity>().ValidInstance(user.Id).Generate();
-            await db.RefreshTokens.AddAsync(token, TestContext.Current.CancellationToken);
-            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+            await new Faker<RefreshTokenEntity>().ValidInstance(default).SeedDatabaseForAllUsers(db, TestContext.Current.CancellationToken);
+            List<RefreshTokenEntity> list = await new Faker<RefreshTokenEntity>()
+                .ValidInstance(user.Id)
+                .SeedDatabase(db, TestContext.Current.CancellationToken, min: 1, max: 1);
+            return list[0].Value;
         });
-        RefreshAccessTokenCommand refreshCommand = new(token.RefreshToken);
+        RefreshAccessTokenCommand command = new(refreshToken);
 
         //Act
-        using HttpResponseMessage response = await HttpClientJsonExtensions.PutAsJsonAsync(
-            thisApp.HttpClient,
-            Path,
-            refreshCommand,
-            TestContext.Current.CancellationToken
-        );
+        using HttpResponseMessage response = await thisApp.HttpClient.SendRefreshAccessTokenAsync(command, TestContext.Current.CancellationToken);
 
         //Assert
         response.Should().Be200Ok();
@@ -46,42 +40,42 @@ public sealed class RefreshAccessTokenHandlerTests(ToDoAppFixture thisApp)
         result.Email.Should().Be(user.Email);
         await thisApp.ExecuteDbContextAsync(async db =>
         {
-            RefreshTokenEntity? newToken = await db.RefreshTokens.AsNoTracking().Include(e => e.User).SingleOrDefaultAsync(TestContext.Current.CancellationToken);
+            RefreshTokenEntity? newToken = await db.RefreshTokens.AsNoTracking().SingleOrDefaultAsync(
+                e => e.UserId == user.Id && e.Value == result.RefreshToken.Value,
+                TestContext.Current.CancellationToken
+            );
             newToken.Should().NotBeNull();
-            newToken.Should().NotBe(refreshCommand.RefreshToken);
-            newToken.UserId.Should().Be(user.Id);
+            newToken.Should().NotBe(command.RefreshToken);
             newToken.ExpiresAt.Should().BeAfter(DateTime.UtcNow);
+            result.RefreshToken.Should().BeEquivalentTo(newToken.ToDto());
+
+            bool oldTokenExists = await db.RefreshTokens.AsNoTracking().AnyAsync(
+                e => e.UserId == user.Id && e.Value == refreshToken,
+                TestContext.Current.CancellationToken
+            );
+            oldTokenExists.Should().BeFalse();
         });
     }
 
     [Fact]
-    public async Task Handler_ShouldRemoveExpiredRefreshTokens()
+    public async ValueTask Handler_ShouldRemoveExpiredRefreshTokens()
     {
         //Arrange
         await thisApp.ResetDatabaseAsync();
-        (UserEntity user, _) = await RegisterUserHandlerTests.RegisterUserAsync(thisApp);
-        RefreshTokenEntity token = null!;
-        await thisApp.ExecuteDbContextAsync(async db =>
+        (UserEntity user, string password) = await thisApp.AddUsers2AndPickRandom();
+        string refreshToken = await thisApp.ExecuteDbContextAsync(async db =>
         {
-            token = new Faker<RefreshTokenEntity>().ValidInstance(user.Id).Generate();
-            await db.RefreshTokens.AddAsync(token, TestContext.Current.CancellationToken);
-            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+            await new Faker<RefreshTokenEntity>().ValidInstance(default).MakeExpired().SeedDatabaseForAllUsers(db, TestContext.Current.CancellationToken);
+            await new Faker<RefreshTokenEntity>().ValidInstance(default).SeedDatabaseForAllUsers(db, TestContext.Current.CancellationToken);
+            List<RefreshTokenEntity> tokens = await new Faker<RefreshTokenEntity>()
+                .ValidInstance(user.Id)
+                .SeedDatabase(db, TestContext.Current.CancellationToken, min: 1, max: 1);
+            return tokens[0].Value;
         });
-        await thisApp.ExecuteDbContextAsync(async db =>
-        {
-            List<RefreshTokenEntity> tokens = new Faker<RefreshTokenEntity>().ValidInstance(user.Id).MakeExpired().Generate(5);
-            await db.RefreshTokens.AddRangeAsync(tokens, TestContext.Current.CancellationToken);
-            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
-        });
-        RefreshAccessTokenCommand refreshCommand = new(token.RefreshToken);
+        RefreshAccessTokenCommand command = new(refreshToken);
 
         //Act
-        using HttpResponseMessage response = await HttpClientJsonExtensions.PutAsJsonAsync(
-            thisApp.HttpClient,
-            Path,
-            refreshCommand,
-            TestContext.Current.CancellationToken
-        );
+        using HttpResponseMessage response = await thisApp.HttpClient.SendRefreshAccessTokenAsync(command, TestContext.Current.CancellationToken);
 
         //Assert
         response.Should().Be200Ok();
@@ -90,66 +84,66 @@ public sealed class RefreshAccessTokenHandlerTests(ToDoAppFixture thisApp)
         result.Email.Should().Be(user.Email);
         await thisApp.ExecuteDbContextAsync(async db =>
         {
-            RefreshTokenEntity? newToken = await db.RefreshTokens.AsNoTracking().Include(e => e.User).SingleOrDefaultAsync(TestContext.Current.CancellationToken);
+            RefreshTokenEntity? newToken = await db.RefreshTokens.AsNoTracking().SingleOrDefaultAsync(
+                e => e.UserId == user.Id && e.Value == result.RefreshToken.Value,
+                TestContext.Current.CancellationToken
+            );
             newToken.Should().NotBeNull();
-            newToken.Should().NotBe(refreshCommand.RefreshToken);
-            newToken.UserId.Should().Be(user.Id);
+            newToken.Should().NotBe(command.RefreshToken);
             newToken.ExpiresAt.Should().BeAfter(DateTime.UtcNow);
+            result.RefreshToken.Should().BeEquivalentTo(newToken.ToDto());
+
+            bool oldTokenExists = await db.RefreshTokens.AsNoTracking().AnyAsync(
+                e => e.UserId == user.Id && e.Value == refreshToken,
+                TestContext.Current.CancellationToken
+            );
+            oldTokenExists.Should().BeFalse();
+
+            int expiredCount = await db.RefreshTokens.AsNoTracking().CountAsync(e => DateTime.UtcNow > e.ExpiresAt, TestContext.Current.CancellationToken);
+            expiredCount.Should().Be(0);
         });
     }
 
     [Fact]
-    public async Task Handle_ShouldFail_WhenRefreshTokenNotFound()
+    public async ValueTask Handler_ShouldFail_WhenRefreshTokenNotFound()
     {
         //Arrange
         await thisApp.ResetDatabaseAsync();
-        (UserEntity user, _) = await RegisterUserHandlerTests.RegisterUserAsync(thisApp);
-        RefreshTokenEntity token = null!;
+        (UserEntity user, string password) = await thisApp.AddUsers2AndPickRandom();
         await thisApp.ExecuteDbContextAsync(async db =>
         {
-            token = new Faker<RefreshTokenEntity>().ValidInstance(user.Id).Generate();
-            await db.RefreshTokens.AddAsync(token, TestContext.Current.CancellationToken);
-            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+            await new Faker<RefreshTokenEntity>().ValidInstance(default).SeedDatabaseForAllUsers(db, TestContext.Current.CancellationToken);
         });
-        RefreshAccessTokenCommand refreshCommand = new Faker<RefreshAccessTokenCommand>().ValidInstance().Generate();
+        RefreshAccessTokenCommand command = new Faker<RefreshAccessTokenCommand>().ValidInstance().Generate();
 
         //Act
-        using HttpResponseMessage response = await HttpClientJsonExtensions.PutAsJsonAsync(
-            thisApp.HttpClient,
-            Path,
-            refreshCommand,
-            TestContext.Current.CancellationToken
-        );
+        using HttpResponseMessage response = await thisApp.HttpClient.SendRefreshAccessTokenAsync(command, TestContext.Current.CancellationToken);
 
         //Assert
         response.Should().Be404NotFound();
     }
 
     [Fact]
-    public async Task Handle_ShouldFail_WhenRefreshTokenExpired()
+    public async ValueTask Handler_ShouldFail_WhenRefreshTokenExpired()
     {
         //Arrange
         await thisApp.ResetDatabaseAsync();
-        (UserEntity user, _) = await RegisterUserHandlerTests.RegisterUserAsync(thisApp);
-        RefreshTokenEntity token = null!;
-        await thisApp.ExecuteDbContextAsync(async db =>
+        (UserEntity user, string password) = await thisApp.AddUsers2AndPickRandom();
+        string refreshToken = await thisApp.ExecuteDbContextAsync(async db =>
         {
-            token = new Faker<RefreshTokenEntity>().ValidInstance(user.Id).MakeExpired().Generate();
-            await db.RefreshTokens.AddAsync(token, TestContext.Current.CancellationToken);
-            await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+            await new Faker<RefreshTokenEntity>().ValidInstance(default).SeedDatabaseForAllUsers(db, TestContext.Current.CancellationToken);
+            List<RefreshTokenEntity> tokens = await new Faker<RefreshTokenEntity>()
+                .ValidInstance(user.Id)
+                .MakeExpired()
+                .SeedDatabase(db, TestContext.Current.CancellationToken, min: 1, max: 1);
+            return tokens[0].Value;
         });
-        RefreshAccessTokenCommand refreshCommand = new(token.RefreshToken);
+        RefreshAccessTokenCommand command = new(refreshToken);
 
         //Act
-        using HttpResponseMessage response = await HttpClientJsonExtensions.PutAsJsonAsync(
-            thisApp.HttpClient,
-            Path,
-            refreshCommand,
-            TestContext.Current.CancellationToken
-        );
+        using HttpResponseMessage response = await thisApp.HttpClient.SendRefreshAccessTokenAsync(command, TestContext.Current.CancellationToken);
 
         //Assert
         response.Should().Be400BadRequest();
     }
-    #endregion
 }

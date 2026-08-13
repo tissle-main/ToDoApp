@@ -32,7 +32,7 @@ public static class ErrorExtensions
         }
         if(errors.All(error => error.Type is ErrorType.Validation))
         {
-            Error validationError = GeneralErrors.ValidationFailure();
+            Error validationError = Error.Validation();
             return new HttpValidationProblemDetails()
             {
                 Status = StatusCodes.Status422UnprocessableEntity,

@@ -20,8 +20,8 @@ public abstract class BehaviorBase<TMessage, TErrorOrValue> : IPipelineBehavior<
             MethodInfo method = typeof(ErrorOrFactory).GetMethod(
                 name: nameof(ErrorOrFactory.From),
                 genericParameterCount: 1,
-                BindingFlags.Public | BindingFlags.Static,
-                [typeof(List<Error>)]
+                bindingAttr: BindingFlags.Public | BindingFlags.Static,
+                types: [typeof(List<Error>)]
             )!.MakeGenericMethod(typeArg);
             FromErrors = (Func<List<Error>, TErrorOrValue>)Delegate.CreateDelegate(typeof(Func<List<Error>, TErrorOrValue>), method);
         }

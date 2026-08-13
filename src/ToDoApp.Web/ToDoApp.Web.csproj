@@ -33,8 +33,4 @@
     <ProjectReference Include="..\ToDoApp.ServiceDefaults\ToDoApp.ServiceDefaults.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Shared\Scalar\" />
-  </ItemGroup>
-
 </Project>

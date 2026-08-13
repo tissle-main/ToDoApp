@@ -1,4 +1,4 @@
-using ToDoApp.Web.Shared.Extensions;
+using ToDoApp.Web;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();

@@ -1,8 +1,13 @@
 ﻿using Respawn;
+using Projects;
 using ToDoApp.Data;
+using Polly.Timeout;
 using ToDoApp.AppHost;
+using ToDoApp.IntegrationTests;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+
+[assembly: AssemblyFixture(typeof(ToDoAppFixture))]
 
 namespace ToDoApp.IntegrationTests;
 
@@ -20,20 +25,17 @@ public sealed class ToDoAppFixture : IAsyncLifetime
         await using AppDbContext context = new(DbOptions);
         await func(context);
     }
+    public async ValueTask<T> ExecuteDbContextAsync<T>(Func<AppDbContext, ValueTask<T>> func)
+    {
+        await using AppDbContext context = new(DbOptions);
+        return await func(context);
+    }
     public async ValueTask ResetDatabaseAsync()
     {
-        while(true)
-        {
-            try
-            {
-                TestContext.Current.CancellationToken.ThrowIfCancellationRequested();
-                await using SqlConnection connection = new(ConnectionString);
-                await connection.OpenAsync();
-                await Respawner.ResetAsync(connection);
-                return;
-            }
-            catch { }
-        }
+        TestContext.Current.CancellationToken.ThrowIfCancellationRequested();
+        await using SqlConnection connection = new(ConnectionString);
+        await connection.OpenAsync();
+        await Respawner.ResetAsync(connection);
     }
     #endregion
 
@@ -63,7 +65,14 @@ public sealed class ToDoAppFixture : IAsyncLifetime
                 });
                 return;
             }
-            catch { }
+            catch(SqlException)
+            {
+                continue;
+            }
+            catch(TimeoutRejectedException)
+            {
+                continue;
+            }
         }
     }
     public async ValueTask DisposeAsync()
@@ -73,3 +82,4 @@ public sealed class ToDoAppFixture : IAsyncLifetime
     }
     #endregion
 }
+public sealed class ToDoAppApplication(params string[] args) : DistributedApplicationFactory(typeof(ToDoApp_AppHost), args);

@@ -1,13 +1,10 @@
 ﻿using ErrorOr;
-using Mediator;
 using System.Text;
 using ToDoApp.Data;
-using Microsoft.AspNetCore.Mvc;
-using ToDoApp.Web.Shared.Extensions;
+using ToDoApp.Data.Features.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using ToDoApp.Data.Features.Auth.Roles;
-using ToDoApp.Data.Features.Auth.Users;
+using System.Diagnostics.CodeAnalysis;
 using ToDoApp.Web.Features.Auth.Options;
 using ToDoApp.Web.Features.Auth.Services;
 using ToDoApp.Web.Features.Auth.Handlers;
@@ -15,48 +12,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace ToDoApp.Web.Features.Auth;
 
-public sealed class AuthFeatureProvider : IFeatureProvider
+public sealed class AuthFeatureProvider : FeatureProvider
 {
-    #region Static
-    public static async Task<IResult> RegisterUser(
-        [FromBody] RegisterUserCommand command,
-        [FromServices] IMediator mediator,
-        CancellationToken cancellationToken
-    )
-    {
-        ErrorOr<Unit> result = await mediator.Send(command, cancellationToken);
-        return result.ToHttpResult();
-    }
-    public static async Task<IResult> LoginUser(
-        [FromBody] LoginUserCommand command,
-        [FromServices] IMediator mediator,
-        CancellationToken cancellationToken
-    )
-    {
-        ErrorOr<LoginUserResponse> result = await mediator.Send(command, cancellationToken);
-        return result.ToHttpResult();
-    }
-    public static async Task<IResult> RefreshAccessToken(
-        [FromBody] RefreshAccessTokenCommand command,
-        [FromServices] IMediator mediator,
-        CancellationToken cancellationToken
-    )
-    {
-        ErrorOr<RefreshAccessTokenResponse> result = await mediator.Send(command, cancellationToken);
-        return result.ToHttpResult();
-    }
-    public static async Task<IResult> DeleteUser(
-        [FromServices] IMediator mediator,
-        CancellationToken cancellationToken
-    )
-    {
-        ErrorOr<Unit> result = await mediator.Send(new DeleteUserCommand(), cancellationToken);
-        return result.ToHttpResult();
-    }
-    #endregion
-
     #region Interfaces
-    public void AddFeature(IHostApplicationBuilder builder)
+    public override void AddServices(WebApplicationBuilder builder)
     {
         builder.Services.AddOptionsWithValidateOnStart<JwtOptions>().BindConfiguration(JwtOptions.SectionName);
         builder.Services.AddOptionsWithValidateOnStart<RefreshTokenOptions>().BindConfiguration(RefreshTokenOptions.SectionName);
@@ -86,38 +45,80 @@ public sealed class AuthFeatureProvider : IFeatureProvider
         builder.Services.AddScoped<IAccessTokenGenerator, AccessTokenGenerator>();
         builder.Services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
     }
-    public void UseFeature(IApplicationBuilder builder)
+    public override void UseMiddleware(WebApplication app)
     {
-        builder.UseAuthentication();
-        builder.UseAuthorization();
-    }
-    public void MapEndpoints(IEndpointRouteBuilder builder)
-    {
-        RouteGroupBuilder group = builder.MapGroup("/auth");
-        group.MapPost("/register", RegisterUser)
-            .WithName(nameof(RegisterUser))
-            .Produces(StatusCodes.Status204NoContent)
-            .ProducesProblem(StatusCodes.Status409Conflict)
-            .ProducesProblem(StatusCodes.Status500InternalServerError)
-            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
-        group.MapPost("/login", LoginUser)
-            .WithName(nameof(LoginUser))
-            .Produces<LoginUserResponse>(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status500InternalServerError)
-            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
-        group.MapPut("/refresh", RefreshAccessToken)
-            .WithName(nameof(RefreshAccessToken))
-            .Produces<RefreshAccessTokenResponse>(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
-        group.MapDelete("/delete", DeleteUser).RequireAuthorization()
-            .WithName(nameof(DeleteUser))
-            .Produces(StatusCodes.Status204NoContent)
-            .ProducesProblem(StatusCodes.Status401Unauthorized)
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.AddRegisterUserEndpoint();
+        app.AddLoginUserEndpoint();
+        app.AddRefreshAccessTokenEndpoint();
+        app.AddDeleteUserEndpoint();
     }
     #endregion
+}
+public static class AuthConstants
+{
+    public const int PasswordMinLength = 8;
+    [StringSyntax(StringSyntaxAttribute.Regex)] public const string PasswordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,}$";
+    public const string PasswordValidationMessage = "Password must contain at least 8 characters, including uppercase, lowercase, and a number.";
+}
+public static class AuthErrors
+{
+    public static Error UserExists()
+    {
+        return Error.Conflict("Auth.UserExists", "User already exists.");
+    }
+    public static Error UserNotFound()
+    {
+        return Error.NotFound("Auth.UserNotFound", "User not found.");
+    }
+    public static Error UserLockedOut()
+    {
+        return Error.Failure("Auth.UserLockedOut", "User locked out.");
+    }
+    public static Error UserNotAllowed()
+    {
+        return Error.Failure("Auth.UserNotAllowed", "User not allowed to sign in.");
+    }
+    public static Error Requires2FA()
+    {
+        return Error.Failure("Auth.Requires2FA", "Sign in requires 2FA.");
+    }
+    public static Error InvalidPassword()
+    {
+        return Error.Failure("Auth.InvalidPassword", "Entered invalid password.");
+    }
+    public static Error RefreshTokenNotFound()
+    {
+        return Error.NotFound("Auth.RefreshTokenNotFound", "Refresh token not found.");
+    }
+    public static Error RefreshTokenExpired()
+    {
+        return Error.Failure("Auth.RefreshTokenExpired", "Refresh token expired.");
+    }
+
+    public static IEnumerable<Error> ToErrors(this IdentityResult result)
+    {
+        if(result.Succeeded)
+        {
+            return [];
+        }
+        return result.Errors.Select(error => Error.Failure(error.Code, error.Description));
+    }
+    public static Error ToError(this SignInResult result)
+    {
+        if(result.IsLockedOut)
+        {
+            return UserLockedOut();
+        }
+        if(result.IsNotAllowed)
+        {
+            return UserNotAllowed();
+        }
+        if(result.RequiresTwoFactor)
+        {
+            return Requires2FA();
+        }
+        return InvalidPassword();
+    }
 }
