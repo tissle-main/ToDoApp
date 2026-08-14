@@ -2,18 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace ToDoApp.Data.Shared.Entities;
+namespace ToDoApp.Data.Shared.JoinEntities;
 
-public interface IJoinEntity<TSelf, TLeftEntity, TRightEntity> : IEquatable<TSelf> where TSelf : IJoinEntity<TSelf, TLeftEntity, TRightEntity>
-{
-    //Value properties
-    public abstract Guid LeftId { get; set; }
-    public abstract Guid RightId { get; set; }
-
-    //Navigation properties
-    public abstract TLeftEntity? Left { get; set; }
-    public abstract TRightEntity? Right { get; set; }
-}
 public static class JoinEntityConfiguration
 {
     public static void ConfigureJoinEntity<TJoinEntity, TLeftEntity, TRightEntity>(

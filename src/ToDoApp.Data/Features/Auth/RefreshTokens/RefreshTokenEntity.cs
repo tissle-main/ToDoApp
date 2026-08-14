@@ -1,17 +1,16 @@
 ﻿using ToDoApp.Data.Features.Auth.Users;
 using ToDoApp.Data.Shared.KeyedEntities;
-using ToDoApp.Data.Features.Tasks_Categories;
 
-namespace ToDoApp.Data.Features.Categories;
+namespace ToDoApp.Data.Features.Auth.RefreshTokens;
 
-public sealed class CategoryEntity : IKeyedEntity
+public sealed class RefreshTokenEntity : IKeyedEntity
 {
     //Value properties
     public Guid Id { get; set; } //Interfaces
-    public required string Name { get; set; }
+    public required string Value { get; set; }
+    public required DateTime ExpiresAt { get; set; }
     public Guid UserId { get; set; }
 
     //Navigation properties
     public UserEntity? User { get; set; }
-    public List<Task_Category_JoinEntity> Tasks { get; set; } = [];
 }

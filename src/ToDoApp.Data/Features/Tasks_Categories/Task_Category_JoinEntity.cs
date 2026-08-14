@@ -1,9 +1,7 @@
 ﻿using ToDoApp.Data.Features.Tasks;
-using ToDoApp.Data.Shared.Entities;
-using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 using ToDoApp.Data.Features.Categories;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using ToDoApp.Data.Shared.JoinEntities;
 
 namespace ToDoApp.Data.Features.Tasks_Categories;
 
@@ -38,15 +36,6 @@ public sealed class Task_Category_JoinEntity : IJoinEntity<Task_Category_JoinEnt
             return false;
         }
         return this.LeftId == obj.LeftId && this.RightId == obj.RightId;
-    }
-    #endregion
-}
-public sealed class Task_Category_JoinEntityConfiguration : IEntityTypeConfiguration<Task_Category_JoinEntity>
-{
-    #region Interfaces
-    public void Configure(EntityTypeBuilder<Task_Category_JoinEntity> builder)
-    {
-        builder.ConfigureJoinEntity<Task_Category_JoinEntity, TaskEntity, CategoryEntity>(l => l.Categories, r => r.Tasks);
     }
     #endregion
 }

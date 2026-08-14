@@ -1,8 +1,9 @@
 ﻿using ToDoApp.Data.Features.Tasks;
 using Microsoft.AspNetCore.Identity;
 using ToDoApp.Data.Features.Categories;
+using ToDoApp.Data.Features.Auth.RefreshTokens;
 
-namespace ToDoApp.Data.Features.Auth;
+namespace ToDoApp.Data.Features.Auth.Users;
 
 public sealed class UserEntity : IdentityUser<Guid>
 {

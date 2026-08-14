@@ -1,20 +1,9 @@
-﻿using ToDoApp.Data.Shared.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using ToDoApp.Data.Shared.KeyedEntities;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace ToDoApp.Data.Features.Auth;
+namespace ToDoApp.Data.Features.Auth.RefreshTokens;
 
-public sealed class RefreshTokenEntity : IKeyedEntity
-{
-    //Value properties
-    public Guid Id { get; set; }
-    public required string Value { get; set; }
-    public required DateTime ExpiresAt { get; set; }
-    public Guid UserId { get; set; }
-
-    //Navigation properties
-    public UserEntity? User { get; set; }
-}
 public sealed class RefreshTokenEntityConfiguration : IEntityTypeConfiguration<RefreshTokenEntity>
 {
     #region Interfaces
@@ -27,8 +16,4 @@ public sealed class RefreshTokenEntityConfiguration : IEntityTypeConfiguration<R
         builder.HasOne(e => e.User).WithMany(e => e.RefreshTokens).IsRequired().OnDelete(DeleteBehavior.Restrict);
     }
     #endregion
-}
-public static class RefreshTokenEntityConstants
-{
-    public const int RefreshTokenMaxLength = 128;
 }
