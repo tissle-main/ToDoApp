@@ -1,6 +1,7 @@
 ﻿using Microsoft.OpenApi;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace ToDoApp.Web.Features.Scalar;
 
@@ -19,7 +20,7 @@ public sealed class BearerSecurityOperationTransformer : IOpenApiOperationTransf
         operation.Security ??= [];
         operation.Security.Add(new OpenApiSecurityRequirement()
         {
-            [new OpenApiSecuritySchemeReference("Bearer", context.Document)] = []
+            [new OpenApiSecuritySchemeReference(JwtBearerDefaults.AuthenticationScheme, context.Document)] = []
         });
         return Task.CompletedTask;
     }

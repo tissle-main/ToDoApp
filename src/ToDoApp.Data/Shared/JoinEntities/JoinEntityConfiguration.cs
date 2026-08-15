@@ -6,17 +6,20 @@ namespace ToDoApp.Data.Shared.JoinEntities;
 
 public static class JoinEntityConfiguration
 {
-    public static void ConfigureJoinEntity<TJoinEntity, TLeftEntity, TRightEntity>(
-        this EntityTypeBuilder<TJoinEntity> builder,
-        Expression<Func<TLeftEntity, IEnumerable<TJoinEntity>?>> leftWithMany,
-        Expression<Func<TRightEntity, IEnumerable<TJoinEntity>?>> rightWithMany,
-        DeleteBehavior deleteBehavior = DeleteBehavior.Cascade
-    ) where TJoinEntity : class, IJoinEntity<TJoinEntity, TLeftEntity, TRightEntity>
-      where TLeftEntity : class
-      where TRightEntity : class
+    extension<TJoinEntity, TLeftEntity, TRightEntity>(EntityTypeBuilder<TJoinEntity> thisBuilder)
+        where TJoinEntity : class, IJoinEntity<TJoinEntity, TLeftEntity, TRightEntity>
+        where TLeftEntity : class
+        where TRightEntity : class
     {
-        builder.HasKey(e => new { e.LeftId, e.RightId });
-        builder.HasOne(e => e.Left).WithMany(leftWithMany).IsRequired().OnDelete(deleteBehavior);
-        builder.HasOne(e => e.Right).WithMany(rightWithMany).IsRequired().OnDelete(deleteBehavior);
+        public void ConfigureJoinEntity(
+            Expression<Func<TLeftEntity, IEnumerable<TJoinEntity>?>> leftWithMany,
+            Expression<Func<TRightEntity, IEnumerable<TJoinEntity>?>> rightWithMany,
+            DeleteBehavior deleteBehavior = DeleteBehavior.Cascade
+        )
+        {
+            thisBuilder.HasKey(e => new { e.LeftId, e.RightId });
+            thisBuilder.HasOne(e => e.Left).WithMany(leftWithMany).IsRequired().OnDelete(deleteBehavior);
+            thisBuilder.HasOne(e => e.Right).WithMany(rightWithMany).IsRequired().OnDelete(deleteBehavior);
+        }
     }
 }

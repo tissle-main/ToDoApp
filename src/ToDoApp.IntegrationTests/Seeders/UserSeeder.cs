@@ -2,9 +2,11 @@
 using AwesomeAssertions;
 using System.Net.Http.Json;
 using ToDoApp.Web.Shared.Fakers;
-using ToDoApp.Data.Features.Auth;
 using Microsoft.EntityFrameworkCore;
 using ToDoApp.Web.Features.Auth.Handlers;
+using ToDoApp.Data.Features.Auth.Users;
+using ToDoApp.Web.Features.Auth.Handlers.RegisterUser;
+using ToDoApp.Web.Features.Auth.Handlers.LoginUser;
 
 namespace ToDoApp.IntegrationTests.Seeders;
 

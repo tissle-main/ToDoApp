@@ -10,13 +10,18 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace ToDoApp.Data;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<UserEntity, RoleEntity, Guid>(options)
+public sealed class AppDbContext : IdentityDbContext<UserEntity, RoleEntity, Guid>
 {
     #region Instance
     public DbSet<RefreshTokenEntity> RefreshTokens { get; set; } = null!; //Init by EFCore
     public DbSet<TaskEntity> Tasks { get; set; } = null!; //Init by EFCore
     public DbSet<CategoryEntity> Categories { get; set; } = null!; //Init by EFCore
     public DbSet<Task_Category_JoinEntity> Tasks_Categories { get; set; } = null!; //Init by EFCore
+
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    {
+        base.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+    }
     #endregion
 
     #region Base
@@ -28,12 +33,17 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : Ident
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
         this.GenerateIdForKeyedEntities();
-        return base.SaveChanges(acceptAllChangesOnSuccess);
+        int changedNumber = base.SaveChanges(acceptAllChangesOnSuccess);
+        base.ChangeTracker.Clear();
+        return changedNumber;
+
     }
-    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
         this.GenerateIdForKeyedEntities();
-        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        int changedNumber = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        base.ChangeTracker.Clear();
+        return changedNumber;
     }
     #endregion
 }

@@ -2,11 +2,12 @@
 using AwesomeAssertions;
 using System.Net.Http.Json;
 using ToDoApp.Web.Shared.Fakers;
-using ToDoApp.Data.Features.Auth;
 using Microsoft.EntityFrameworkCore;
 using ToDoApp.Web.Features.Auth.Dtos;
 using ToDoApp.IntegrationTests.Seeders;
-using ToDoApp.Web.Features.Auth.Handlers;
+using ToDoApp.Data.Features.Auth.Users;
+using ToDoApp.Data.Features.Auth.RefreshTokens;
+using ToDoApp.Web.Features.Auth.Handlers.RefreshAccessToken;
 
 namespace ToDoApp.IntegrationTests.Features.Auth;
 
@@ -19,7 +20,7 @@ public sealed class RefreshAccessTokenHandlerTests(ToDoAppFixture thisApp)
     {
         //Arrange
         await thisApp.ResetDatabaseAsync();
-        (UserEntity user, string password) = await thisApp.AddUsers2AndPickRandom();
+        (UserEntity user, _) = await thisApp.AddUsers2AndPickRandom();
         string refreshToken = await thisApp.ExecuteDbContextAsync(async db =>
         {
             await new Faker<RefreshTokenEntity>().ValidInstance(default).SeedDatabaseForAllUsers(db, TestContext.Current.CancellationToken);
@@ -62,7 +63,7 @@ public sealed class RefreshAccessTokenHandlerTests(ToDoAppFixture thisApp)
     {
         //Arrange
         await thisApp.ResetDatabaseAsync();
-        (UserEntity user, string password) = await thisApp.AddUsers2AndPickRandom();
+        (UserEntity user, _) = await thisApp.AddUsers2AndPickRandom();
         string refreshToken = await thisApp.ExecuteDbContextAsync(async db =>
         {
             await new Faker<RefreshTokenEntity>().ValidInstance(default).MakeExpired().SeedDatabaseForAllUsers(db, TestContext.Current.CancellationToken);
@@ -109,7 +110,7 @@ public sealed class RefreshAccessTokenHandlerTests(ToDoAppFixture thisApp)
     {
         //Arrange
         await thisApp.ResetDatabaseAsync();
-        (UserEntity user, string password) = await thisApp.AddUsers2AndPickRandom();
+        (UserEntity user, _) = await thisApp.AddUsers2AndPickRandom();
         await thisApp.ExecuteDbContextAsync(async db =>
         {
             await new Faker<RefreshTokenEntity>().ValidInstance(default).SeedDatabaseForAllUsers(db, TestContext.Current.CancellationToken);
@@ -128,7 +129,7 @@ public sealed class RefreshAccessTokenHandlerTests(ToDoAppFixture thisApp)
     {
         //Arrange
         await thisApp.ResetDatabaseAsync();
-        (UserEntity user, string password) = await thisApp.AddUsers2AndPickRandom();
+        (UserEntity user, _) = await thisApp.AddUsers2AndPickRandom();
         string refreshToken = await thisApp.ExecuteDbContextAsync(async db =>
         {
             await new Faker<RefreshTokenEntity>().ValidInstance(default).SeedDatabaseForAllUsers(db, TestContext.Current.CancellationToken);

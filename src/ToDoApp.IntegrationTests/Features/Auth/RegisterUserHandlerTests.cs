@@ -1,10 +1,11 @@
 ﻿using Bogus;
 using AwesomeAssertions;
 using ToDoApp.Web.Shared.Fakers;
-using ToDoApp.Data.Features.Auth;
 using Microsoft.EntityFrameworkCore;
 using ToDoApp.IntegrationTests.Seeders;
 using ToDoApp.Web.Features.Auth.Handlers;
+using ToDoApp.Data.Features.Auth.Users;
+using ToDoApp.Web.Features.Auth.Handlers.RegisterUser;
 
 namespace ToDoApp.IntegrationTests.Features.Auth;
 

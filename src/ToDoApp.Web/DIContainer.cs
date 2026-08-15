@@ -3,8 +3,10 @@ using FluentValidation;
 using ToDoApp.Web.Features;
 using ToDoApp.ServiceDefaults;
 using System.Collections.Frozen;
-using ToDoApp.Web.Shared.Behaviors;
 using Microsoft.EntityFrameworkCore;
+using ToDoApp.Web.Shared.Behaviors.Authorized;
+using ToDoApp.Web.Shared.Behaviors.Validation;
+using ToDoApp.Web.Shared.Behaviors.DbTransaction;
 
 namespace ToDoApp.Web;
 
@@ -12,71 +14,76 @@ public static class DIContainer
 {
     private static FrozenSet<FeatureProvider> Features { get; set; } = [];
 
-    public static void AddCore(this WebApplicationBuilder builder)
+    extension(WebApplicationBuilder thisBuilder)
     {
-        builder.Services.AddDbContext<AppDbContext>(options =>
+        public void AddCore()
         {
-            string? connectionStr = builder.Configuration.GetConnectionString(AppResources.Database);
-            options.UseSqlServer(connectionStr, builder =>
+            thisBuilder.Services.AddDbContext<AppDbContext>(options =>
             {
-                builder.MigrationsAssembly(typeof(AppDbContext).Assembly.GetName().Name);
+                string? connectionStr = thisBuilder.Configuration.GetConnectionString(AppResources.Database);
+                options.UseSqlServer(connectionStr, builder =>
+                {
+                    builder.MigrationsAssembly(typeof(AppDbContext).Assembly.GetName().Name);
+                });
             });
-        });
-        builder.Services.AddProblemDetails(options =>
-        {
-            options.CustomizeProblemDetails = static void(ProblemDetailsContext ctx) =>
+            thisBuilder.Services.AddProblemDetails(options =>
             {
-                ctx.ProblemDetails.Extensions.Add("instance", $"{ctx.HttpContext.Request.Method} {ctx.HttpContext.Request.Path}");
-            };
-        });
-        builder.AddCQRS();
-        builder.AddFeatures();
-    }
-    public static void AddCQRS(this WebApplicationBuilder builder)
-    {
-        builder.Services.AddMediator(options =>
+                options.CustomizeProblemDetails = static void (ProblemDetailsContext ctx) =>
+                {
+                    ctx.ProblemDetails.Extensions.Add("instance", $"{ctx.HttpContext.Request.Method} {ctx.HttpContext.Request.Path}");
+                };
+            });
+            thisBuilder.AddCQRS();
+            thisBuilder.AddFeatures();
+        }
+        public void AddCQRS()
         {
-            options.ServiceLifetime = ServiceLifetime.Scoped;
-            options.PipelineBehaviors = [
-                typeof(ValidationBehavior<,>),
-                typeof(AuthorizedBehavior<,>),
-                typeof(DbSaveBehavior<,>)
-            ];
-        });
-        builder.Services.AddValidatorsFromAssemblyContaining(typeof(DIContainer), ServiceLifetime.Singleton);
-        ValidatorOptions.Global.LanguageManager.Enabled = false;
-    }
-    public static void AddFeatures(this WebApplicationBuilder builder)
-    {
-        Features = typeof(DIContainer).Assembly.GetTypes().Where(type =>
+            thisBuilder.Services.AddMediator(options =>
+            {
+                options.ServiceLifetime = ServiceLifetime.Scoped;
+                options.PipelineBehaviors = [
+                    typeof(ValidationBehavior<,>),
+                    typeof(AuthorizedBehavior<,>),
+                    typeof(DbTransactionBehavior<,>)
+                ];
+            });
+            thisBuilder.Services.AddValidatorsFromAssemblyContaining(typeof(DIContainer), ServiceLifetime.Singleton);
+            ValidatorOptions.Global.LanguageManager.Enabled = false;
+        }
+        public void AddFeatures()
         {
-            return !type.IsAbstract && type.IsAssignableTo(typeof(FeatureProvider));
-        }).Select(type =>
-        {
-            return (FeatureProvider)Activator.CreateInstance(type)!;
-        }).ToFrozenSet();
-        foreach(FeatureProvider provider in Features)
-        {
-            provider.AddServices(builder);
+            Features = typeof(DIContainer).Assembly.GetTypes().Where(type =>
+            {
+                return !type.IsAbstract && type.IsAssignableTo(typeof(FeatureProvider));
+            }).Select(type =>
+            {
+                return (FeatureProvider)Activator.CreateInstance(type)!;
+            }).ToFrozenSet();
+            foreach(FeatureProvider provider in Features)
+            {
+                provider.AddServices(thisBuilder);
+            }
         }
     }
-
-    public static void UseCore(this WebApplication app)
+    extension(WebApplication thisApp)
     {
-        app.MigrateDatabase();
-        app.UseFeatures();
-    }
-    public static void MigrateDatabase(this WebApplication app)
-    {
-        using IServiceScope scope = app.Services.CreateScope();
-        AppDbContext dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        dbContext.Database.Migrate();
-    }
-    public static void UseFeatures(this WebApplication app)
-    {
-        foreach(FeatureProvider provider in Features)
+        public void UseCore()
         {
-            provider.UseMiddleware(app);
+            thisApp.MigrateDatabase();
+            thisApp.UseFeatures();
+        }
+        public void MigrateDatabase()
+        {
+            using IServiceScope scope = thisApp.Services.CreateScope();
+            AppDbContext dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            dbContext.Database.Migrate();
+        }
+        public void UseFeatures()
+        {
+            foreach(FeatureProvider provider in Features)
+            {
+                provider.UseMiddleware(thisApp);
+            }
         }
     }
 }

@@ -7,7 +7,7 @@ public sealed class SerilogFeatureProvider : FeatureProvider
     #region Base
     public override void AddServices(WebApplicationBuilder builder)
     {
-        builder.Host.UseSerilog(static void (HostBuilderContext ctx, IServiceProvider provider, LoggerConfiguration cfg) =>
+        builder.Host.UseSerilog((ctx, provider, cfg) =>
         {
             cfg.WriteTo.Console();
         });
