@@ -1,10 +1,8 @@
 ﻿using Bogus;
-using ToDoApp.Web.Shared.Fakers;
 using FluentValidation.TestHelper;
-using ToDoApp.Web.Features.Auth.Handlers;
 using ToDoApp.Web.Features.Auth.Handlers.LoginUser;
 
-namespace ToDoApp.UnitTests.Features.Auth.Validators;
+namespace ToDoApp.UnitTests.Features.Auth.Handlers.LoginUser;
 
 public sealed class LoginUserCommandValidatorTests
 {
