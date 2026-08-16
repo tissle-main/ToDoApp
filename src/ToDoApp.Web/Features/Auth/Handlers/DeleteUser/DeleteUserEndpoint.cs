@@ -4,6 +4,8 @@ using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
 using ToDoApp.Web.Shared.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using ToDoApp.Web.Features.Tasks.Handlers.DeleteTasks;
+using ToDoApp.Web.Features.Categories.Handlers.DeleteCategories;
 
 namespace ToDoApp.Web.Features.Auth.Handlers.DeleteUser;
 
@@ -20,6 +22,15 @@ public static class DeleteUserEndpoint
         return result.ToHttpResult();
     }
 
+    extension(RouteHandlerBuilder thisBuilder)
+    {
+        public RouteHandlerBuilder AddDeleteUserProductionProblems()
+        {
+            thisBuilder.ProducesProblem(StatusCodes.Status401Unauthorized);
+            thisBuilder.AddDeleteCategoriesProductionProblems();
+            return thisBuilder.AddDeleteTasksProductionProblems();
+        }
+    }
     extension(IEndpointRouteBuilder thisBuilder)
     {
         public void AddDeleteUserEndpoint()
@@ -27,7 +38,7 @@ public static class DeleteUserEndpoint
             thisBuilder.MapDelete(Url, DeleteUser).RequireAuthorization()
                 .WithName(nameof(DeleteUser))
                 .Produces(StatusCodes.Status204NoContent)
-                .ProducesProblem(StatusCodes.Status401Unauthorized);
+                .AddDeleteUserProductionProblems();
         }        
     }
     extension(HttpClient thisHttpClient)

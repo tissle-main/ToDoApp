@@ -2,6 +2,7 @@
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
 using ToDoApp.Web.Shared.Extensions;
+using ToDoApp.Web.Features.Auth.Handlers.GenerateTokens;
 
 namespace ToDoApp.Web.Features.Auth.Handlers.LoginUser;
 
@@ -19,6 +20,16 @@ public static class LoginUserEndpoint
         return result.ToHttpResult();
     }
 
+    extension(RouteHandlerBuilder thisBuilder)
+    {
+        public RouteHandlerBuilder AddLoginUserProductionProblems()
+        {
+            thisBuilder.ProducesProblem(StatusCodes.Status400BadRequest);
+            thisBuilder.ProducesProblem(StatusCodes.Status404NotFound);
+            thisBuilder.ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+            return thisBuilder.AddGenerateTokensProductionProblems();
+        }
+    }
     extension(IEndpointRouteBuilder thisBuilder)
     {
         public void AddLoginUserEndpoint()
@@ -26,15 +37,14 @@ public static class LoginUserEndpoint
             thisBuilder.MapPost(Url, LoginUser)
                 .WithName(nameof(LoginUser))
                 .Produces<LoginUserResponse>(StatusCodes.Status200OK)
-                .ProducesProblem(StatusCodes.Status404NotFound)
-                .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+                .AddLoginUserProductionProblems();
         }
     }
     extension(HttpClient thisHttpClient)
     {
         public async ValueTask<HttpResponseMessage> SendLoginUserAsync(LoginUserCommand command, CancellationToken cancellationToken)
         {
-            return await HttpClientJsonExtensions.PostAsJsonAsync(thisHttpClient, Url, command, cancellationToken);
+            return await thisHttpClient.PostAsJsonAsync(Url, command, cancellationToken);
         }
     } 
 }

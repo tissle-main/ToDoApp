@@ -10,7 +10,9 @@ using ToDoApp.Web.Features.Auth.Handlers.LoginUser;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using ToDoApp.Web.Features.Auth.Handlers.DeleteUser;
 using ToDoApp.Web.Features.Auth.Handlers.RegisterUser;
+using ToDoApp.Web.Features.Auth.Handlers.GenerateTokens;
 using ToDoApp.Web.Features.Auth.Handlers.RefreshAccessToken;
+using ToDoApp.Web.Features.Auth.Handlers.RemoveExpiredRefreshTokens;
 
 namespace ToDoApp.Web.Features.Auth;
 
@@ -55,6 +57,11 @@ public sealed class AuthFeatureProvider : FeatureProvider
         app.AddLoginUserEndpoint();
         app.AddRefreshAccessTokenEndpoint();
         app.AddDeleteUserEndpoint();
+        if(app.Environment.IsEnvironment("Test"))
+        {
+            app.AddRemoveExpiredRefreshTokensEndpoint();
+            app.AddGenerateTokensEndpoint();
+        }
     }
     #endregion
 }

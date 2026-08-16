@@ -33,6 +33,7 @@ public static class DIContainer
                     ctx.ProblemDetails.Extensions.Add("instance", $"{ctx.HttpContext.Request.Method} {ctx.HttpContext.Request.Path}");
                 };
             });
+            thisBuilder.Configuration.AddUserSecrets<Program>();
             thisBuilder.AddCQRS();
             thisBuilder.AddFeatures();
         }

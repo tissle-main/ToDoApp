@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
 using ToDoApp.Web.Shared.Extensions;
 using ToDoApp.Web.Features.Categories.Dtos;
+using ToDoApp.Web.Features.Tasks_Categories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace ToDoApp.Web.Features.Categories.Handlers.UpdateCategory;
@@ -22,6 +23,16 @@ public static class UpdateCategoryEndpoint
         return response.ToHttpResult();
     }
 
+    extension(RouteHandlerBuilder thisBuilder)
+    {
+        public RouteHandlerBuilder AddUpdateCategoryProductionProblems()
+        {
+            thisBuilder.ProducesProblem(StatusCodes.Status401Unauthorized);
+            thisBuilder.ProducesProblem(StatusCodes.Status404NotFound);
+            thisBuilder.ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+            return thisBuilder.AddTask_Category_UpdateProductionProblems();
+        }
+    }
     extension(WebApplication thisApp)
     {
         public void AddUpdateCategoryEndpoint()
@@ -29,10 +40,7 @@ public static class UpdateCategoryEndpoint
             thisApp.MapPut(Url, UpdateCategory).RequireAuthorization()
                 .WithName(nameof(UpdateCategory))
                 .Produces(StatusCodes.Status204NoContent)
-                .ProducesProblem(StatusCodes.Status401Unauthorized)
-                .ProducesProblem(StatusCodes.Status403Forbidden)
-                .ProducesProblem(StatusCodes.Status404NotFound)
-                .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+                .AddUpdateCategoryProductionProblems();
         }
     }
     extension(HttpClient thisHttpClient)

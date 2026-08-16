@@ -2,6 +2,7 @@
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
 using ToDoApp.Web.Shared.Extensions;
+using ToDoApp.Web.Features.Auth.Handlers.GenerateTokens;
 
 namespace ToDoApp.Web.Features.Auth.Handlers.RefreshAccessToken;
 
@@ -19,6 +20,15 @@ public static class RefreshAccessTokenEndpoint
         return result.ToHttpResult();
     }
 
+    extension(RouteHandlerBuilder thisBuilder)
+    {
+        public RouteHandlerBuilder AddRefreshAccessTokenProductionProblems()
+        {
+            thisBuilder.ProducesProblem(StatusCodes.Status400BadRequest);
+            thisBuilder.ProducesProblem(StatusCodes.Status404NotFound);
+            return thisBuilder.AddGenerateTokensProductionProblems();
+        }
+    }
     extension(IEndpointRouteBuilder thisBuilder)
     {
         public void AddRefreshAccessTokenEndpoint()
@@ -26,15 +36,14 @@ public static class RefreshAccessTokenEndpoint
             thisBuilder.MapPut(Url, RefreshAccessToken)
                 .WithName(nameof(RefreshAccessToken))
                 .Produces<RefreshAccessTokenResponse>(StatusCodes.Status200OK)
-                .ProducesProblem(StatusCodes.Status400BadRequest)
-                .ProducesProblem(StatusCodes.Status404NotFound);
+                .AddRefreshAccessTokenProductionProblems();
         }
     }
     extension(HttpClient thisHttpClient)
     {
         public async ValueTask<HttpResponseMessage> SendRefreshAccessTokenAsync(RefreshAccessTokenCommand command, CancellationToken cancellationToken)
         {
-            return await HttpClientJsonExtensions.PutAsJsonAsync(thisHttpClient, Url, command, cancellationToken);
+            return await thisHttpClient.PutAsJsonAsync(Url, command, cancellationToken);
         }
     }
 }

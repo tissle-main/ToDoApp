@@ -18,7 +18,16 @@ public static class RegisterUserEndpoint
         ErrorOr<Unit> errorOrUnit = await mediator.Send(command, cancellationToken);
         return errorOrUnit.ToHttpResult();
     }
-
+    
+    extension(RouteHandlerBuilder thisBuilder)
+    {
+        public RouteHandlerBuilder AddRegisterUserProductionProblems()
+        {
+            thisBuilder.ProducesProblem(StatusCodes.Status400BadRequest);
+            thisBuilder.ProducesProblem(StatusCodes.Status409Conflict);
+            return thisBuilder.ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+        }
+    }
     extension(IEndpointRouteBuilder thisBuilder)
     {
         public void AddRegisterUserEndpoint()
@@ -26,15 +35,14 @@ public static class RegisterUserEndpoint
             thisBuilder.MapPost(Url, RegisterUser)
                 .WithName(nameof(RegisterUser))
                 .Produces(StatusCodes.Status204NoContent)
-                .ProducesProblem(StatusCodes.Status409Conflict)
-                .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+                .AddRegisterUserProductionProblems();
         }
     }
     extension(HttpClient thisHttpClient)
     {
         public async ValueTask<HttpResponseMessage> SendRegisterUserAsync(RegisterUserCommand command, CancellationToken cancellationToken)
         {
-            return await HttpClientJsonExtensions.PostAsJsonAsync(thisHttpClient, Url, command, cancellationToken);
+            return await thisHttpClient.PostAsJsonAsync(Url, command, cancellationToken);
         }
     }
 }

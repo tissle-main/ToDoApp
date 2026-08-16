@@ -31,6 +31,14 @@ public static class GetCategoriesEndpoint
         return response.Then(value => value.Categories).ToHttpResult();
     }
 
+    extension(RouteHandlerBuilder thisBuilder)
+    {
+        public RouteHandlerBuilder AddGetCategoriesProductionProblems()
+        {
+            thisBuilder.ProducesProblem(StatusCodes.Status401Unauthorized);
+            return thisBuilder.ProducesProblem(StatusCodes.Status404NotFound);
+        }
+    }
     extension(WebApplication thisApp)
     {
         public void AddGetCategoriesEndpoint()
@@ -38,8 +46,7 @@ public static class GetCategoriesEndpoint
             thisApp.MapGet(Url, GetCategories).RequireAuthorization()
                 .WithName(nameof(GetCategories))
                 .Produces<IEnumerable<CategoryDto>>(StatusCodes.Status200OK)
-                .ProducesProblem(StatusCodes.Status401Unauthorized)
-                .ProducesProblem(StatusCodes.Status404NotFound);
+                .AddGetCategoriesProductionProblems();
         }
     }
     extension(HttpClient thisHttpClient)

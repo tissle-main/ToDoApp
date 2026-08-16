@@ -31,6 +31,14 @@ public static class GetTasksEndpoint
         return response.Then(value => value.Tasks).ToHttpResult();
     }
 
+    extension(RouteHandlerBuilder thisBuilder)
+    {
+        public RouteHandlerBuilder AddGetTasksProductionProblems()
+        {
+            thisBuilder.ProducesProblem(StatusCodes.Status401Unauthorized);
+            return thisBuilder.ProducesProblem(StatusCodes.Status404NotFound);
+        }
+    }
     extension(WebApplication thisApp)
     {
         public void AddGetTasksEndpoint()
@@ -38,8 +46,7 @@ public static class GetTasksEndpoint
             thisApp.MapGet(Url, GetTasks).RequireAuthorization()
                 .WithName(nameof(GetTasks))
                 .Produces<IEnumerable<TaskDto>>(StatusCodes.Status200OK)
-                .ProducesProblem(StatusCodes.Status401Unauthorized)
-                .ProducesProblem(StatusCodes.Status404NotFound);
+                .AddGetTasksProductionProblems();
         }
     }
     extension(HttpClient thisHttpClient)

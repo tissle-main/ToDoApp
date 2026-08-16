@@ -30,6 +30,14 @@ public static class DeleteTasksEndpoint
         return response.ToHttpResult();
     }
 
+    extension(RouteHandlerBuilder thisBuilder)
+    {
+        public RouteHandlerBuilder AddDeleteTasksProductionProblems()
+        {
+            thisBuilder.ProducesProblem(StatusCodes.Status401Unauthorized);
+            return thisBuilder.ProducesProblem(StatusCodes.Status404NotFound);
+        }
+    }
     extension(WebApplication thisApp)
     {
         public void AddDeleteTasksEndpoint()
@@ -37,8 +45,7 @@ public static class DeleteTasksEndpoint
             thisApp.MapDelete(Url, DeleteTasks).RequireAuthorization()
                 .WithName(nameof(DeleteTasks))
                 .Produces(StatusCodes.Status204NoContent)
-                .ProducesProblem(StatusCodes.Status401Unauthorized)
-                .ProducesProblem(StatusCodes.Status404NotFound);
+                .AddDeleteTasksProductionProblems();
         }
     }
     extension(HttpClient thisHttpClient)

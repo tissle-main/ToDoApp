@@ -39,6 +39,14 @@ public static class GetTasksEndpoint
         return response.Then(value => value.Tasks).ToHttpResult();
     }
 
+    extension(RouteHandlerBuilder thisBuilder)
+    {
+        public RouteHandlerBuilder AddGetTasksByFilterProductionProblems()
+        {
+            thisBuilder.ProducesProblem(StatusCodes.Status401Unauthorized);
+            return thisBuilder.ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+        }
+    }
     extension(WebApplication thisApp)
     {
         public void AddGetTasksByFilterEndpoint()
@@ -46,8 +54,7 @@ public static class GetTasksEndpoint
             thisApp.MapGet(Url, GetTasksByFilter).RequireAuthorization()
                 .WithName(nameof(GetTasksByFilter))
                 .Produces<IEnumerable<TaskDto>>(StatusCodes.Status200OK)
-                .ProducesProblem(StatusCodes.Status401Unauthorized)
-                .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+                .AddGetTasksByFilterProductionProblems();
         }
     }
     extension(HttpClient thisHttpClient)

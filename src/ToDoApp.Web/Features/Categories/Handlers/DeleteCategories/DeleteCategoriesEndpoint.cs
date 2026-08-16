@@ -30,6 +30,14 @@ public static class DeleteCategoriesEndpoint
         return response.ToHttpResult();
     }
 
+    extension(RouteHandlerBuilder thisBuilder)
+    {
+        public RouteHandlerBuilder AddDeleteCategoriesProductionProblems()
+        {
+            thisBuilder.ProducesProblem(StatusCodes.Status401Unauthorized);
+            return thisBuilder.ProducesProblem(StatusCodes.Status404NotFound);
+        }
+    }
     extension(WebApplication thisApp)
     {
         public void AddDeleteCategoriesEndpoint()
@@ -37,8 +45,7 @@ public static class DeleteCategoriesEndpoint
             thisApp.MapDelete(Url, DeleteCategories).RequireAuthorization()
                 .WithName(nameof(DeleteCategories))
                 .Produces(StatusCodes.Status204NoContent)
-                .ProducesProblem(StatusCodes.Status401Unauthorized)
-                .ProducesProblem(StatusCodes.Status404NotFound);
+                .AddDeleteCategoriesProductionProblems();
         }
     }
     extension(HttpClient thisHttpClient)

@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
 using ToDoApp.Web.Shared.Extensions;
 using ToDoApp.Web.Features.Tasks.Dtos;
+using ToDoApp.Web.Features.Tasks_Categories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace ToDoApp.Web.Features.Tasks.Handlers.CreateTask;
@@ -22,6 +23,15 @@ public static class CreateTaskEndpoint
         return response.Then(value => value.CreatedId).ToHttpResult();
     }
 
+    extension(RouteHandlerBuilder thisBuilder)
+    {
+        public RouteHandlerBuilder AddCreateTaskProductionProblems()
+        {
+            thisBuilder.ProducesProblem(StatusCodes.Status401Unauthorized);
+            thisBuilder.ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+            return thisBuilder.AddTask_Category_UpdateProductionProblems();
+        }
+    }
     extension(WebApplication thisApp)
     {
         public void AddCreateTaskEndpoint()
@@ -29,10 +39,7 @@ public static class CreateTaskEndpoint
             thisApp.MapPost(Url, CreateTask).RequireAuthorization()
                 .WithName(nameof(CreateTask))
                 .Produces<Guid>(StatusCodes.Status200OK)
-                .ProducesProblem(StatusCodes.Status401Unauthorized)
-                .ProducesProblem(StatusCodes.Status403Forbidden)
-                .ProducesProblem(StatusCodes.Status404NotFound)
-                .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity);
+                .AddCreateTaskProductionProblems();
         }
     }
     extension(HttpClient thisHttpClient)
