@@ -1,20 +1,16 @@
 ﻿using Respawn;
-using Projects;
 using ToDoApp.Data;
 using Polly.Timeout;
 using ToDoApp.AppHost;
-using ToDoApp.IntegrationTests;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-
-[assembly: AssemblyFixture(typeof(ToDoAppFixture))]
 
 namespace ToDoApp.IntegrationTests;
 
 public sealed class ToDoAppFixture : IAsyncLifetime
 {
     #region Instance
-    private ToDoAppApplication Application { get; } = new();
+    private ToDoAppFactory Application { get; } = new();
     private string ConnectionString { get; set; } = null!; //Init after InitializedAsync
     private DbContextOptions<AppDbContext> DbOptions { get; set; } = null!; //Init after InitializedAsync
     private Respawner Respawner { get; set; } = null!; //Init after InitializedAsync
@@ -47,6 +43,7 @@ public sealed class ToDoAppFixture : IAsyncLifetime
             try
             {
                 TestContext.Current.CancellationToken.ThrowIfCancellationRequested();
+                Environment.SetEnvironmentVariable("DOTNET_LAUNCH_PROFILE", "Test");
                 await Application.StartAsync(TestContext.Current.CancellationToken);
                 HttpClient = Application.CreateHttpClient(AppResources.Web);
                 ConnectionString = await Application.GetConnectionString(AppResources.Database) ?? throw new NullReferenceException("ConnectionString is null");
@@ -82,4 +79,3 @@ public sealed class ToDoAppFixture : IAsyncLifetime
     }
     #endregion
 }
-public sealed class ToDoAppApplication(params string[] args) : DistributedApplicationFactory(typeof(ToDoApp_AppHost), args);

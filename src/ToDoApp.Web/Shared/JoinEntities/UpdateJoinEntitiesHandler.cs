@@ -30,18 +30,17 @@ public abstract class UpdateJoinEntitiesHandler<TMessage, TJoinEntity, TLeftEnti
         {
             return Unit.Value;
         }
+        UserEntity user = message.User;
         if(message.OldEntities.Count > 0)
         {
-            Guid[] leftIds = message.OldEntities.Select(e => e.LeftId).ToArray();
-            Guid[] rightIds = message.OldEntities.Select(e => e.RightId).ToArray();
-            int count = await JoinEntities.CountAsync(e => leftIds.Contains(e.LeftId) && rightIds.Contains(e.RightId), cancellationToken);
-            if(count != message.OldEntities.Count)
+            TJoinEntity[] jes = await JoinEntities.Include(je => je.Left).Include(je => je.Right).Where(
+                je => je.Left!.UserId == user.Id && je.Right!.UserId == user.Id
+            ).ToArrayAsync(cancellationToken);
+            if(message.OldEntities.Except(jes).Any())
             {
                 return Error.Unexpected();
             }
         }
-
-        UserEntity user = message.User;
         if(message.NewEntities.Count > 0)
         {
             Guid[] ids = message.NewEntities.Select(e => e.LeftId).Distinct().ToArray();
@@ -66,7 +65,6 @@ public abstract class UpdateJoinEntitiesHandler<TMessage, TJoinEntity, TLeftEnti
                 return Error.NotFound();
             }
         }
-
         JoinEntities.RemoveRange(message.OldEntities.Except(message.NewEntities));
         await JoinEntities.AddRangeAsync(message.NewEntities.Except(message.OldEntities), cancellationToken);
         await thisDbContext.SaveChangesAsync(cancellationToken);

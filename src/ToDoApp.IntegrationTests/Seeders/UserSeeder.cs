@@ -1,12 +1,10 @@
 ﻿using Bogus;
 using AwesomeAssertions;
 using System.Net.Http.Json;
-using ToDoApp.Web.Shared.Fakers;
 using Microsoft.EntityFrameworkCore;
-using ToDoApp.Web.Features.Auth.Handlers;
 using ToDoApp.Data.Features.Auth.Users;
-using ToDoApp.Web.Features.Auth.Handlers.RegisterUser;
 using ToDoApp.Web.Features.Auth.Handlers.LoginUser;
+using ToDoApp.Web.Features.Auth.Handlers.RegisterUser;
 
 namespace ToDoApp.IntegrationTests.Seeders;
 
@@ -14,10 +12,10 @@ public static class UserSeeder
 {
     private static Faker Faker { get; } = new();
 
-    public static async ValueTask<List<RegisterUserCommand>> AddUsers(this ToDoAppFixture app)
+    public static async ValueTask<List<RegisterUserCommand>> AddUsersAsync(this ToDoAppFixture app, int min = 2, int max = 5)
     {
         List<RegisterUserCommand> users = [];
-        for(int count = Faker.Random.Number(2, 5); count > 0; count--)
+        for(int count = Faker.Random.Number(min, max); count > 0; count--)
         {
             RegisterUserCommand command = new Faker<RegisterUserCommand>().ValidInstance();
             using HttpResponseMessage message = await app.HttpClient.SendRegisterUserAsync(command, TestContext.Current.CancellationToken);
@@ -26,9 +24,9 @@ public static class UserSeeder
         }
         return users;
     }
-    public static async ValueTask<IEnumerable<(UserEntity User, string Password)>> AddUsers2(this ToDoAppFixture app)
+    public static async ValueTask<IEnumerable<(UserEntity User, string Password)>> AddUsers2Async(this ToDoAppFixture app, int min = 2, int max = 5)
     {
-        List<RegisterUserCommand> commands = await app.AddUsers();
+        List<RegisterUserCommand> commands = await app.AddUsersAsync(min, max);
         return await app.ExecuteDbContextAsync(async db =>
         {
             UserEntity[] users = await db.Users.AsNoTracking().Where(
@@ -41,18 +39,18 @@ public static class UserSeeder
             });
         });
     }
-    public static async ValueTask<RegisterUserCommand> AddUsersAndPickRandom(this ToDoAppFixture app)
+    public static async ValueTask<RegisterUserCommand> AddUsersAndPickRandomAsync(this ToDoAppFixture app, int min = 2, int max = 5)
     {
-        return Faker.PickRandom(await app.AddUsers());
+        return Faker.PickRandom(await app.AddUsersAsync(min, max));
     }
-    public static async ValueTask<(UserEntity User, string Password)> AddUsers2AndPickRandom(this ToDoAppFixture app)
+    public static async ValueTask<(UserEntity User, string Password)> AddUsers2AndPickRandomAsync(this ToDoAppFixture app, int min = 2, int max = 5)
     {
-        return Faker.PickRandom(await app.AddUsers2());
+        return Faker.PickRandom(await app.AddUsers2Async(min, max));
     }
-    public static async ValueTask<(UserEntity User, string Password, string AccessToken)> AddUsers2AndLoginRandom(this ToDoAppFixture app)
+    public static async ValueTask<(UserEntity User, string Password, string AccessToken)> AddUsers2AndLoginRandomAsync(this ToDoAppFixture app, int min = 2, int max = 5)
     {
-        (UserEntity user, string password) = await app.AddUsers2AndPickRandom();
-        LoginUserCommand login = new(user.Email!, password);
+        (UserEntity user, string password) = await app.AddUsers2AndPickRandomAsync(min, max);
+        LoginUserCommand login = new Faker<LoginUserCommand>().ValidInstance().WithEmail(user.Email!).WithPassword(password);
         using HttpResponseMessage response = await app.HttpClient.SendLoginUserAsync(login, TestContext.Current.CancellationToken);
         response.EnsureSuccessStatusCode();
         LoginUserResponse? result = await response.Content.ReadFromJsonAsync<LoginUserResponse>(TestContext.Current.CancellationToken);

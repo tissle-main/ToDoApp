@@ -14,7 +14,7 @@ public static class RefreshTokenEntityFaker
                 return new RefreshTokenEntity()
                 {
                     Value = g.Random.String2(RefreshTokenEntityConstants.RefreshTokenMaxLength),
-                    ExpiresAt = g.Date.Soon(refDate: DateTime.UtcNow.AddDays(1))
+                    ExpiresAt = DateTime.UtcNow.AddDays(1)
                 };
             });
         }
@@ -30,7 +30,7 @@ public static class RefreshTokenEntityFaker
         {
             return thisFaker.RuleFor(
                 e => e.ExpiresAt,
-                g => g.Date.Recent(refDate: DateTime.UtcNow.AddDays(-1))
+                g => DateTime.UtcNow.AddDays(-1)
             );
         }
     }

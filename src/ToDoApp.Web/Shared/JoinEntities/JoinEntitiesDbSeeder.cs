@@ -9,8 +9,6 @@ namespace ToDoApp.Web.Shared.JoinEntities;
 
 public static class JoinEntitiesDbSeeder
 {
-    private static Faker Faker { get; } = new();
-
     extension<TJoinEntity, TLeftEntity, TRightEntity>(AppDbContext thisDbContext)
         where TJoinEntity : class, IJoinEntity<TJoinEntity, TLeftEntity, TRightEntity>, new()
         where TLeftEntity : class, IKeyedEntity, IUserEntityForeignKey
@@ -18,27 +16,25 @@ public static class JoinEntitiesDbSeeder
     {
         public async ValueTask SeedJoinEntitiesAsync(Guid userId, CancellationToken cancellationToken)
         {
-            TLeftEntity[] lefts = await thisDbContext.Set<TLeftEntity>().AsNoTracking().Where(e => e.UserId == userId).ToArrayAsync(cancellationToken);
-            TRightEntity[] rights = await thisDbContext.Set<TRightEntity>().AsNoTracking().Where(e => e.UserId == userId).ToArrayAsync(cancellationToken);
+            TLeftEntity[] lefts = await thisDbContext.Set<TLeftEntity>().Where(e => e.UserId == userId).ToArrayAsync(cancellationToken);
+            TRightEntity[] rights = await thisDbContext.Set<TRightEntity>().Where(e => e.UserId == userId).ToArrayAsync(cancellationToken);
             foreach(TLeftEntity left in lefts)
             {
                 foreach(TRightEntity right in rights)
                 {
-                    if(Faker.Random.Bool())
+                    TJoinEntity join = new()
                     {
-                        TJoinEntity join = new()
-                        {
-                            LeftId = left.Id,
-                            RightId = right.Id
-                        };
-                        await thisDbContext.Set<TJoinEntity>().AddAsync(join, cancellationToken);
-                    }
+                        LeftId = left.Id,
+                        RightId = right.Id
+                    };
+                    await thisDbContext.Set<TJoinEntity>().AddAsync(join, cancellationToken);
                 }
             }
+            await thisDbContext.SaveChangesAsync(cancellationToken);
         }
         public async ValueTask SeedJoinEntitiesForAllUsersAsync(CancellationToken cancellationToken, Guid[]? exceptUserIds = null)
         {
-            Guid[] userIds = await thisDbContext.Users.AsNoTracking().Select(e => e.Id).Except(exceptUserIds ?? []).ToArrayAsync(cancellationToken);
+            Guid[] userIds = await thisDbContext.Users.Select(e => e.Id).Except(exceptUserIds ?? []).ToArrayAsync(cancellationToken);
             foreach(Guid userId in userIds)
             {
                 await thisDbContext.SeedJoinEntitiesAsync<TJoinEntity, TLeftEntity, TRightEntity>(userId, cancellationToken);

@@ -9,7 +9,7 @@ public static class TaskDbSeeder
 {
     extension(Faker<TaskEntity> thisFaker)
     {
-        public async ValueTask<List<TaskEntity>> SeedDatabase(
+        public async ValueTask<List<TaskEntity>> SeedDatabaseAsync(
             AppDbContext dbContext,
             CancellationToken cancellationToken,
             int min = 2,
@@ -18,9 +18,10 @@ public static class TaskDbSeeder
         {
             List<TaskEntity> tasks = thisFaker.GenerateBetween(min, max);
             await dbContext.Tasks.AddRangeAsync(tasks, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
             return tasks;
         }
-        public async ValueTask<Dictionary<Guid, List<TaskEntity>>> SeedDatabaseForAllUsers(
+        public async ValueTask<Dictionary<Guid, List<TaskEntity>>> SeedDatabaseForAllUsersAsync(
             AppDbContext dbContext,
             CancellationToken cancellationToken,
             Guid[]? exceptUserIds = null,
@@ -29,10 +30,10 @@ public static class TaskDbSeeder
         )
         {
             Dictionary<Guid, List<TaskEntity>> dict = [];
-            Guid[] userIds = await dbContext.Users.AsNoTracking().Select(e => e.Id).Except(exceptUserIds ?? []).ToArrayAsync(cancellationToken);
+            Guid[] userIds = await dbContext.Users.Select(e => e.Id).Except(exceptUserIds ?? []).ToArrayAsync(cancellationToken);
             foreach(Guid userId in userIds)
             {
-                List<TaskEntity> list = await thisFaker.Clone().WithUserId(userId).SeedDatabase(dbContext, cancellationToken, min, max);
+                List<TaskEntity> list = await thisFaker.Clone().WithUserId(userId).SeedDatabaseAsync(dbContext, cancellationToken, min, max);
                 dict.Add(userId, list);
             }
             return dict;

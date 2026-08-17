@@ -18,6 +18,7 @@ public static class RefreshTokenDbSeeder
         {
             List<RefreshTokenEntity> categories = thisFaker.GenerateBetween(min, max);
             await dbContext.RefreshTokens.AddRangeAsync(categories, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
             return categories;
         }
         public async ValueTask<Dictionary<Guid, List<RefreshTokenEntity>>> SeedDatabaseForAllUsersAsync(
@@ -29,7 +30,7 @@ public static class RefreshTokenDbSeeder
         )
         {
             Dictionary<Guid, List<RefreshTokenEntity>> dict = [];
-            Guid[] userIds = await dbContext.Users.AsNoTracking().Select(e => e.Id).Except(exceptUserIds ?? []).ToArrayAsync(cancellationToken);
+            Guid[] userIds = await dbContext.Users.Select(e => e.Id).Except(exceptUserIds ?? []).ToArrayAsync(cancellationToken);
             foreach(Guid userId in userIds)
             {
                 List<RefreshTokenEntity> list = await thisFaker.Clone().WithUserId(userId).SeedDatabaseAsync(dbContext, cancellationToken, min, max);

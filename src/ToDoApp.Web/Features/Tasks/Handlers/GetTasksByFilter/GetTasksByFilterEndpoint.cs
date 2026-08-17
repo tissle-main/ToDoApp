@@ -15,14 +15,27 @@ public static class GetTasksEndpoint
 
     public static string CreateSendableUrl(GetTasksByFilterQuery query)
     {
-        Dictionary<string, string?> queryParams = new()
+        Dictionary<string, string?> queryParams = [];
+        if(query.Search is not null)
         {
-            [nameof(query.Search)] = query.Search,
-            [nameof(query.Category)] = query.Category,
-            [nameof(query.Done)] = query.Done.ToString(),
-            [nameof(query.Skip)] = query.Skip.ToString(),
-            [nameof(query.Take)] = query.Take.ToString()
-        };
+            queryParams.Add(nameof(query.Search), query.Search);
+        }
+        if(query.Category is not null)
+        {
+            queryParams.Add(nameof(query.Category), query.Category);
+        }
+        if(query.Done is bool done)
+        {
+            queryParams.Add(nameof(query.Done), done.ToString());
+        }
+        if(query.Skip is int skip)
+        {
+            queryParams.Add(nameof(query.Skip), skip.ToString());
+        }
+        if(query.Take is int take)
+        {
+            queryParams.Add(nameof(query.Take), take.ToString());
+        }
         return QueryHelpers.AddQueryString(Url, queryParams);
     }
     public static async Task<IResult> GetTasksByFilter(

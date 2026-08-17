@@ -13,6 +13,18 @@ public static class GetTasksByFilterFaker
                 return new GetTasksByFilterQuery();
             });
         }
+        public Faker<GetTasksByFilterQuery> WithSearch(string search)
+        {
+            return thisFaker.RuleFor(e => e.Search, g => search);
+        }
+        public Faker<GetTasksByFilterQuery> WithCategory(string category)
+        {
+            return thisFaker.RuleFor(e => e.Category, g => category);
+        }
+        public Faker<GetTasksByFilterQuery> WithDone(bool done)
+        {
+            return thisFaker.RuleFor(e => e.Done, g => done);
+        }
         public Faker<GetTasksByFilterQuery> WithSkip(int skip)
         {
             return thisFaker.RuleFor(e => e.Skip, g => skip);

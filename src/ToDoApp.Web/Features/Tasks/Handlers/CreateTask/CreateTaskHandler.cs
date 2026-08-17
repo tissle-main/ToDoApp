@@ -25,7 +25,7 @@ public sealed class CreateTaskHandler(AppDbContext thisDbContext, IMediator this
         
         foreach(Task_Category_JoinEntity je in newEntities)
         {
-            je.RightId = entity.Id;
+            je.LeftId = entity.Id;
         }
         ErrorOr<Unit> errorOnUnit = await thisMediator.Send(new Task_Category_UpdateCommand([], newEntities)
         {

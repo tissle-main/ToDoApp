@@ -1,1 +1,4 @@
-﻿[assembly: CollectionBehavior(DisableTestParallelization = true)]
+﻿using ToDoApp.IntegrationTests;
+
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+[assembly: AssemblyFixture(typeof(ToDoAppFixture))]

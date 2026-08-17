@@ -1,13 +1,11 @@
 ﻿using Bogus;
 using AwesomeAssertions;
-using ToDoApp.Web.Shared.Fakers;
 using Microsoft.EntityFrameworkCore;
 using ToDoApp.IntegrationTests.Seeders;
-using ToDoApp.Web.Features.Auth.Handlers;
 using ToDoApp.Data.Features.Auth.Users;
 using ToDoApp.Web.Features.Auth.Handlers.RegisterUser;
 
-namespace ToDoApp.IntegrationTests.Features.Auth;
+namespace ToDoApp.IntegrationTests.Features.Auth.Handlers.RegisterUser;
 
 public sealed class RegisterUserHandlerTests(ToDoAppFixture thisApp)
 {
@@ -19,15 +17,15 @@ public sealed class RegisterUserHandlerTests(ToDoAppFixture thisApp)
         RegisterUserCommand command = new Faker<RegisterUserCommand>().ValidInstance().Generate();
 
         //Act
-        using HttpResponseMessage response = await thisApp.HttpClient.SendRegisterUserAsync(command, TestContext.Current.CancellationToken);
+        using HttpResponseMessage message = await thisApp.HttpClient.SendRegisterUserAsync(command, TestContext.Current.CancellationToken);
 
         //Assert
-        response.Should().Be204NoContent();
+        message.Should().Be204NoContent();
         await thisApp.ExecuteDbContextAsync(async db =>
         {
-            UserEntity? user = await db.Users.AsNoTracking().SingleOrDefaultAsync(TestContext.Current.CancellationToken);
+            UserEntity? user = await db.Users.SingleOrDefaultAsync(TestContext.Current.CancellationToken);
             user.Should().NotBeNull();
-            user.Should().Match<UserEntity>(user => user.Email == command.Email);
+            user.Email.Should().Be(command.Email);
         });
     }
 
@@ -36,13 +34,13 @@ public sealed class RegisterUserHandlerTests(ToDoAppFixture thisApp)
     {
         //Arrange
         await thisApp.ResetDatabaseAsync();
-        RegisterUserCommand command = await thisApp.AddUsersAndPickRandom();
+        RegisterUserCommand command = await thisApp.AddUsersAndPickRandomAsync();
 
         //Act
-        using HttpResponseMessage response = await thisApp.HttpClient.SendRegisterUserAsync(command, TestContext.Current.CancellationToken);
+        using HttpResponseMessage message = await thisApp.HttpClient.SendRegisterUserAsync(command, TestContext.Current.CancellationToken);
 
         //Assert
-        response.Should().Be409Conflict();
+        message.Should().Be409Conflict();
     }
 
     [Fact]
@@ -53,10 +51,10 @@ public sealed class RegisterUserHandlerTests(ToDoAppFixture thisApp)
         RegisterUserCommand command = new Faker<RegisterUserCommand>().ValidInstance().WithInvalidEmail().Generate();
 
         //Act
-        using HttpResponseMessage response = await thisApp.HttpClient.SendRegisterUserAsync(command, TestContext.Current.CancellationToken);
+        using HttpResponseMessage message = await thisApp.HttpClient.SendRegisterUserAsync(command, TestContext.Current.CancellationToken);
 
         //Assert
-        response.Should().Be422UnprocessableEntity();
+        message.Should().Be422UnprocessableEntity();
     }
 
     [Fact]
@@ -67,10 +65,10 @@ public sealed class RegisterUserHandlerTests(ToDoAppFixture thisApp)
         RegisterUserCommand command = new Faker<RegisterUserCommand>().ValidInstance().WithTooShortPassword().Generate();
 
         //Act
-        using HttpResponseMessage response = await thisApp.HttpClient.SendRegisterUserAsync(command, TestContext.Current.CancellationToken);
+        using HttpResponseMessage message = await thisApp.HttpClient.SendRegisterUserAsync(command, TestContext.Current.CancellationToken);
 
         //Assert
-        response.Should().Be422UnprocessableEntity();
+        message.Should().Be422UnprocessableEntity();
     }
 
     [Fact]
@@ -81,12 +79,12 @@ public sealed class RegisterUserHandlerTests(ToDoAppFixture thisApp)
         RegisterUserCommand command = new Faker<RegisterUserCommand>().ValidInstance().WithPasswordWithoutUppercaseLetters().Generate();
 
         //Act
-        using HttpResponseMessage response = await thisApp.HttpClient.SendRegisterUserAsync(command, TestContext.Current.CancellationToken);
+        using HttpResponseMessage message = await thisApp.HttpClient.SendRegisterUserAsync(command, TestContext.Current.CancellationToken);
 
         //Assert
-        response.Should().Be422UnprocessableEntity();
+        message.Should().Be422UnprocessableEntity();
     }
-    
+
     [Fact]
     public async ValueTask Handler_ShouldFail_WhenPasswordDoNotContainLowercaseLetters()
     {
@@ -95,10 +93,10 @@ public sealed class RegisterUserHandlerTests(ToDoAppFixture thisApp)
         RegisterUserCommand command = new Faker<RegisterUserCommand>().ValidInstance().WithPasswordWithoutLowercaseLetters().Generate();
 
         //Act
-        using HttpResponseMessage response = await thisApp.HttpClient.SendRegisterUserAsync(command, TestContext.Current.CancellationToken);
+        using HttpResponseMessage message = await thisApp.HttpClient.SendRegisterUserAsync(command, TestContext.Current.CancellationToken);
 
         //Assert
-        response.Should().Be422UnprocessableEntity();
+        message.Should().Be422UnprocessableEntity();
     }
 
     [Fact]
@@ -109,9 +107,9 @@ public sealed class RegisterUserHandlerTests(ToDoAppFixture thisApp)
         RegisterUserCommand command = new Faker<RegisterUserCommand>().ValidInstance().WithPasswordWithoutDigits().Generate();
 
         //Act
-        using HttpResponseMessage response = await thisApp.HttpClient.SendRegisterUserAsync(command, TestContext.Current.CancellationToken);
+        using HttpResponseMessage message = await thisApp.HttpClient.SendRegisterUserAsync(command, TestContext.Current.CancellationToken);
 
         //Assert
-        response.Should().Be422UnprocessableEntity();
+        message.Should().Be422UnprocessableEntity();
     }
 }
