@@ -14,7 +14,7 @@ export class MainPage
 {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-  public readonly email = computed(() => this.authService.email());
+  public readonly email = computed(() => this.authService.user()?.email);
 
   public logoutUser()
   {

@@ -13,7 +13,7 @@ export class CategoryStore
   public load()
   {
     this.loading.set(true);
-    this.api.getCategories().pipe(
+    this.api.getCategories([]).pipe(
       finalize(() => this.loading.set(false))
     ).subscribe({
       next: categories => this.categories.set(categories),

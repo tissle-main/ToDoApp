@@ -1,19 +1,58 @@
 import { inject } from '@angular/core';
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { AuthTokenStore } from './auth.token.store';
+import { AuthService } from './auth.service';
+import { catchError, switchMap, throwError } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (request, next) =>
 {
-  const token = inject(AuthTokenStore).token();
-  if(!token)
+  const tokenStore = inject(AuthTokenStore);
+  const authService = inject(AuthService);
+  if (request.url.endsWith('/auth/refresh-token'))
   {
-    return next(request);
+    return next(
+      request.clone({
+        withCredentials: true
+      })
+    );
   }
-  return next(
-    request.clone({
+
+  const token = tokenStore.token();
+  const authRequest = request.clone({
+    withCredentials: true,
+    ...(token && {
       setHeaders: {
         Authorization: `Bearer ${token}`
       }
+    })
+  });
+
+  return next(authRequest).pipe(
+    catchError((error: HttpErrorResponse) =>
+    {
+      if (error.status !== 401)
+      {
+        return throwError(() => error);
+      }
+      return authService.refreshAccessToken().pipe(
+        switchMap(newToken =>
+        {
+          tokenStore.setToken(newToken.accessToken);
+          return next(
+            request.clone({
+              withCredentials: true,
+              setHeaders: {
+                Authorization: `Bearer ${newToken}`
+              }
+            })
+          );
+        }),
+        catchError(refreshError =>
+        {
+          tokenStore.removeToken();
+          return throwError(() => refreshError);
+        })
+      );
     })
   );
 };

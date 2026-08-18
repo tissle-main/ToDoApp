@@ -33,10 +33,7 @@ const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideAppInitializer(() =>
-    {
-      inject(AuthTokenStore).restoreToken()
-    }),    
+    provideAppInitializer(() => inject(AuthTokenStore).restoreToken()),
     provideHttpClient(
       withInterceptors([authInterceptor])
     ),

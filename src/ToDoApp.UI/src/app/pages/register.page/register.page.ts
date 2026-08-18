@@ -18,24 +18,24 @@ export class RegisterPage
   private readonly router = inject(Router);
   public readonly registerForm = this.fb.group(
     {
-    email: [
-      '',
-      [Validators.required, Validators.email]
-    ],
-    password: [
-      '',
-      [
-        Validators.required,
-        Validators.pattern('^[A-Za-z0-9]{8,}$')
+      email: [
+        '',
+        [Validators.required, Validators.email]
+      ],
+      password: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern('^[A-Za-z0-9]{8,}$')
+        ]
+      ],
+      confirmPassword: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern('^[A-Za-z0-9]{8,}$')
+        ]
       ]
-    ],
-    confirmPassword: [
-      '',
-      [
-        Validators.required,
-        Validators.pattern('^[A-Za-z0-9]{8,}$')
-      ]
-    ]
     },
     {
       validators: [fieldsMatchValidator("password", "confirmPassword")]
