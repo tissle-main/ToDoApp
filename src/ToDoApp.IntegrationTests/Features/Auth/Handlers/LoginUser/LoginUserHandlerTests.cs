@@ -1,6 +1,7 @@
 ﻿using Bogus;
 using AwesomeAssertions;
 using System.Net.Http.Json;
+using ToDoApp.Web.Shared.Extensions;
 using Microsoft.EntityFrameworkCore;
 using ToDoApp.IntegrationTests.Seeders;
 using ToDoApp.Data.Features.Auth.Users;
@@ -13,7 +14,7 @@ namespace ToDoApp.IntegrationTests.Features.Auth.Handlers.LoginUser;
 public sealed class LoginUserHandlerTests(ToDoAppFixture thisApp)
 {
     [Fact]
-    public async ValueTask Handler_ShouldCreateAndReturnCreatedRefreshToken()
+    public async ValueTask Handler_ShouldCreateRefreshToken()
     {
         //Arrange
         await thisApp.ResetDatabaseAsync();
@@ -25,6 +26,8 @@ public sealed class LoginUserHandlerTests(ToDoAppFixture thisApp)
 
         //Assert
         message.Should().Be200Ok();
+        string? refreshTokenValue = message.GetRefreshToken();
+        refreshTokenValue.Should().NotBeNull();
         LoginUserResponse? response = await message.Content.ReadFromJsonAsync<LoginUserResponse>(TestContext.Current.CancellationToken);
         response.Should().NotBeNull();
         response.Email.Should().Be(command.Email).And.Be(user.Email);
@@ -34,7 +37,7 @@ public sealed class LoginUserHandlerTests(ToDoAppFixture thisApp)
             refreshToken.Should().NotBeNull();
             refreshToken.UserId.Should().Be(user.Id);
             refreshToken.ExpiresAt.Should().BeAfter(DateTime.UtcNow);
-            refreshToken.ToDto().Should().BeEquivalentTo(response.RefreshToken);
+            refreshToken.Value.Should().Be(refreshTokenValue);
         });
     }
 

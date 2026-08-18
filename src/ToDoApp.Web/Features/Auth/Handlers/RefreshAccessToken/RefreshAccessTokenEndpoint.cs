@@ -11,12 +11,11 @@ public static class RefreshAccessTokenEndpoint
     public const string Url = "/auth/refresh-token";
 
     public static async Task<IResult> RefreshAccessToken(
-        [FromBody] RefreshAccessTokenCommand command,
         [FromServices] IMediator mediator,
         CancellationToken cancellationToken
     )
     {
-        ErrorOr<RefreshAccessTokenResponse> result = await mediator.Send(command, cancellationToken);
+        ErrorOr<RefreshAccessTokenResponse> result = await mediator.Send(new RefreshAccessTokenCommand(), cancellationToken);
         return result.ToHttpResult();
     }
 
@@ -41,9 +40,9 @@ public static class RefreshAccessTokenEndpoint
     }
     extension(HttpClient thisHttpClient)
     {
-        public async ValueTask<HttpResponseMessage> SendRefreshAccessTokenAsync(RefreshAccessTokenCommand command, CancellationToken cancellationToken)
+        public async ValueTask<HttpResponseMessage> SendRefreshAccessTokenAsync(CancellationToken cancellationToken)
         {
-            return await thisHttpClient.PutAsJsonAsync(Url, command, cancellationToken);
+            return await thisHttpClient.PutAsync(Url, null, cancellationToken);
         }
     }
 }

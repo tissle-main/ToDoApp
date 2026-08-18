@@ -69,7 +69,7 @@
       "templateDirectory": null,
       "serviceHost": null,
       "serviceSchemes": null,
-      "output": "",
+      "output": "ToDoApp.UI/src/app/api.ts",
       "newLineBehavior": "Auto"
     }
   }

@@ -1,5 +1,6 @@
 ﻿using ErrorOr;
 using Mediator;
+using ToDoApp.Web.Shared.Extensions;
 using Microsoft.AspNetCore.Identity;
 using ToDoApp.Data.Features.Auth.Users;
 using ToDoApp.Web.Shared.Behaviors.DbTransaction;
@@ -10,6 +11,7 @@ namespace ToDoApp.Web.Features.Auth.Handlers.LoginUser;
 
 public sealed class LoginUserHandler(
     SignInManager<UserEntity> thisSignInManager,
+    IHttpContextAccessor thisHttpContextAccessor,
     IMediator thisMediator
 ) : ICommandHandler<LoginUserCommand, ErrorOr<LoginUserResponse>>
 {
@@ -31,7 +33,8 @@ public sealed class LoginUserHandler(
         }, cancellationToken);
         return errorOrTokens.Then(tokens =>
         {
-            return new LoginUserResponse(user.Email!, tokens.AccessToken, tokens.RefreshToken);
+            thisHttpContextAccessor.HttpContext!.AddRefreshToken(tokens.RefreshToken);
+            return new LoginUserResponse(user.Email!, tokens.AccessToken);
         });    
     }
     #endregion
