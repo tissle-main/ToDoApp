@@ -3,6 +3,7 @@ using Mediator;
 using ToDoApp.Web.Shared.Extensions;
 using Microsoft.AspNetCore.Identity;
 using ToDoApp.Data.Features.Auth.Users;
+using ToDoApp.Web.Features.Auth.Dtos.Users;
 using ToDoApp.Web.Shared.Behaviors.DbTransaction;
 using ToDoApp.Web.Features.Auth.Handlers.GenerateTokens;
 using LoginResult = Microsoft.AspNetCore.Identity.SignInResult;
@@ -34,7 +35,7 @@ public sealed class LoginUserHandler(
         return errorOrTokens.Then(tokens =>
         {
             thisHttpContextAccessor.HttpContext!.AddRefreshToken(tokens.RefreshToken);
-            return new LoginUserResponse(user.Email!, tokens.AccessToken);
+            return new LoginUserResponse(user.ToDto(), tokens.AccessToken);
         });    
     }
     #endregion

@@ -3,6 +3,7 @@ using Mediator;
 using ToDoApp.Data;
 using Microsoft.EntityFrameworkCore;
 using ToDoApp.Web.Shared.Extensions;
+using ToDoApp.Web.Features.Auth.Dtos.Users;
 using ToDoApp.Data.Features.Auth.RefreshTokens;
 using ToDoApp.Web.Shared.Behaviors.DbTransaction;
 using ToDoApp.Web.Features.Auth.Handlers.GenerateTokens;
@@ -43,7 +44,7 @@ public sealed class RefreshAccessTokenHandler(
         return errorOrTokens.Then(tokens =>
         {
             thisHttpContextAccessor.HttpContext!.AddRefreshToken(tokens.RefreshToken);
-            return new RefreshAccessTokenResponse(entity.User!.Email!, tokens.AccessToken);
+            return new RefreshAccessTokenResponse(entity.User!.ToDto(), tokens.AccessToken);
         });
     }
     #endregion

@@ -1,3 +1,5 @@
-﻿namespace ToDoApp.Web.Features.Auth.Handlers.RefreshAccessToken;
+﻿using ToDoApp.Web.Features.Auth.Dtos.Users;
 
-public sealed record class RefreshAccessTokenResponse(string Email, string AccessToken);
+namespace ToDoApp.Web.Features.Auth.Handlers.RefreshAccessToken;
+
+public sealed record class RefreshAccessTokenResponse(UserDto User, string AccessToken);

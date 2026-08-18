@@ -5,6 +5,7 @@ using ToDoApp.Web.Shared.Extensions;
 using Microsoft.EntityFrameworkCore;
 using ToDoApp.IntegrationTests.Seeders;
 using ToDoApp.Data.Features.Auth.Users;
+using ToDoApp.Web.Features.Auth.Dtos.Users;
 using ToDoApp.Data.Features.Auth.RefreshTokens;
 using ToDoApp.Web.Features.Auth.Handlers.LoginUser;
 using ToDoApp.Web.Features.Auth.Dtos.RefreshTokens;
@@ -30,7 +31,8 @@ public sealed class LoginUserHandlerTests(ToDoAppFixture thisApp)
         refreshTokenValue.Should().NotBeNull();
         LoginUserResponse? response = await message.Content.ReadFromJsonAsync<LoginUserResponse>(TestContext.Current.CancellationToken);
         response.Should().NotBeNull();
-        response.Email.Should().Be(command.Email).And.Be(user.Email);
+        response.User.Should().BeEquivalentTo(user.ToDto());
+        response.User.Email.Should().Be(command.Email);
         await thisApp.ExecuteDbContextAsync(async db =>
         {
             RefreshTokenEntity? refreshToken = await db.RefreshTokens.SingleOrDefaultAsync(TestContext.Current.CancellationToken);

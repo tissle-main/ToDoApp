@@ -1,3 +1,5 @@
-﻿namespace ToDoApp.Web.Features.Auth.Handlers.LoginUser;
+﻿using ToDoApp.Web.Features.Auth.Dtos.Users;
 
-public sealed record class LoginUserResponse(string Email, string AccessToken);
+namespace ToDoApp.Web.Features.Auth.Handlers.LoginUser;
+
+public sealed record class LoginUserResponse(UserDto User, string AccessToken);
