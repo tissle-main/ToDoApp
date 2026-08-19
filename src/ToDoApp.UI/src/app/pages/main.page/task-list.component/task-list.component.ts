@@ -16,11 +16,27 @@ export class TaskListComponent implements OnInit
   private readonly taskStore = inject(TaskStore);
   private readonly categoryStore = inject(CategoryStore);
   public readonly loading = computed(() => this.taskStore.loading());
-  public readonly tasks = computed(() => this.taskStore.tasks());
+  public readonly tasks = computed(() =>
+  {
+    const tasks = this.taskStore.tasks();
+    const categoryId = this.categoryStore.selectedCategoryId();
+
+    if (!categoryId)
+    {
+      return tasks;
+    }
+
+    return tasks.filter(task =>
+      task.categories?.includes(categoryId)
+    );
+  });
   public readonly categories = computed(() => this.categoryStore.categories());
   public readonly showTaskForm = signal(false);
   public readonly editingTask = signal<TaskDto | null>(null);
-
+  public readonly selectedCategoryId = computed(() =>
+    this.categoryStore.selectedCategoryId()
+  );
+  
   public addTask(): void
   {
     this.editingTask.set(null);
@@ -43,6 +59,10 @@ export class TaskListComponent implements OnInit
     }
 
     this.showTaskForm.set(false);
+  }
+  public deleteTask(id: string): void
+  {
+    this.taskStore.delete(id);
   }
   public closeTaskForm(): void
   {

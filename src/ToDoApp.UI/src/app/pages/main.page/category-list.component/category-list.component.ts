@@ -15,6 +15,9 @@ export class CategoryListComponent implements OnInit
   private readonly categoryStore = inject(CategoryStore);
   public readonly loading = computed(() => this.categoryStore.loading());
   public readonly categories = computed(() => this.categoryStore.categories());
+  public readonly selectedCategoryId = computed(() =>
+    this.categoryStore.selectedCategoryId()
+  );
 
   public addCategory(dto: CategoryDto)
   {
@@ -27,6 +30,16 @@ export class CategoryListComponent implements OnInit
   public deleteCategory(id: string)
   {
     this.categoryStore.delete(id);
+  }
+  public selectCategory(id: string): void
+  {
+    if (this.selectedCategoryId() === id)
+    {
+      this.categoryStore.clearCategory();
+      return;
+    }
+
+    this.categoryStore.selectCategory(id);
   }
   public ngOnInit()
   {

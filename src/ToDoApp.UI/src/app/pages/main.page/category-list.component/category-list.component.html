@@ -1,9 +1,18 @@
 <div class="flex h-full flex-col gap-y-2 p-2">
+
   <app-add-category-button (addCategory)="addCategory($event)" />
+
   <div class="flex flex-1 flex-col gap-2 py-2">
+
     @for (category of categories(); track category.id)
     {
-      <app-category-item [category]="category" (saveCategory)="saveCategory($event)" (deleteCategory)="deleteCategory($event)" />
+    <app-category-item [category]="category"
+                       [selected]="selectedCategoryId() === category.id"
+                       (selectCategory)="selectCategory($event)"
+                       (saveCategory)="saveCategory($event)"
+                       (deleteCategory)="deleteCategory($event)" />
     }
+
   </div>
+
 </div>
