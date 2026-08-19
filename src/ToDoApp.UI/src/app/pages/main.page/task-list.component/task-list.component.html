@@ -1,5 +1,36 @@
 <div class="flex h-full flex-col gap-y-2 p-2">
-  <div class="flex flex-1 flex-col gap-2 py-2">
-    
+
+  <button type="button"
+          (click)="addTask()"
+          class="w-full rounded-xl bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700">
+
+    + Add Task
+
+  </button>
+
+  <div class="flex flex-1 flex-col gap-2 overflow-y-auto py-2">
+
+    @for (task of tasks(); track task.id)
+    {
+
+    <app-task-list-item [task]="task"
+                        [categories]="categories()"
+                        (toggleDone)="saveTask($event)"
+                        (deleteTask)="deleteTask($event)"
+                        (editTask)="editTask($event)" />
+
+    }
+
   </div>
+
+  @if (showTaskForm())
+  {
+
+  <app-task-list-item-form [task]="editingTask()"
+                           [categories]="categories()"
+                           (saveTask)="saveTask($event)"
+                           (close)="closeTaskForm()" />
+
+  }
+
 </div>

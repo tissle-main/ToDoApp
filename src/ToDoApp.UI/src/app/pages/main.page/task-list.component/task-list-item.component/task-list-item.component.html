@@ -1,0 +1,81 @@
+<div class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
+
+  <!-- Done -->
+
+  <input type="checkbox"
+         [checked]="task().done"
+         (change)="onDoneChange($event)"
+         class="h-5 w-5 shrink-0 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500/20" />
+
+  <!-- Content -->
+
+  <div class="min-w-0 flex-1">
+
+    <!-- Title -->
+
+    <div class="truncate font-medium text-gray-800"
+         [class.text-gray-400]="task().done"
+         [class.line-through]="task().done">
+
+      {{ task().title }}
+
+    </div>
+
+    <!-- Description -->
+    @if (task().description) {
+
+    <div class="mt-0.5 truncate text-sm text-gray-500"
+         [class.text-gray-400]="task().done">
+
+      {{ task().description }}
+
+    </div>
+
+    }
+
+    <!-- Categories -->
+    @if (taskCategories().length > 0) {
+
+    <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
+
+      @for (category of taskCategories(); track category.id) {
+
+      <span class="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+
+        {{ category.name }}
+
+      </span>
+
+      }
+
+    </div>
+
+    }
+
+  </div>
+
+  <!-- Actions -->
+
+  <div class="flex shrink-0 items-center gap-1">
+
+    <button type="button"
+            (click)="startEdit()"
+            class="rounded-lg p-1.5 text-blue-600 transition hover:bg-blue-50"
+            title="Edit">
+
+      ✏️
+
+    </button>
+
+    <button type="button"
+            (click)="remove()"
+            class="rounded-lg p-1.5 text-red-600 transition hover:bg-red-50"
+            title="Delete">
+
+      🗑️
+
+    </button>
+
+  </div>
+
+</div>

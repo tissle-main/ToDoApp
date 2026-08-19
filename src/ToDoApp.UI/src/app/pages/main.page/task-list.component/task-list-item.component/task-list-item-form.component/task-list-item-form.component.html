@@ -1,0 +1,190 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+     (click)="cancel()">
+
+  <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl"
+       (click)="$event.stopPropagation()">
+
+    <div class="mb-5 flex items-center justify-between">
+
+      <h2 class="text-xl font-semibold text-gray-800">
+        {{ isEditing() ? 'Edit task' : 'Add task' }}
+      </h2>
+
+      <button type="button"
+              (click)="cancel()"
+              class="rounded-md p-1 text-gray-500 transition hover:bg-gray-100"
+              title="Close">
+
+        ✕
+
+      </button>
+
+    </div>
+
+    <form [formGroup]="form"
+          (ngSubmit)="save()"
+          class="flex flex-col gap-4">
+
+      <!-- Title -->
+
+      <div class="flex flex-col gap-1">
+
+        <label for="task-title"
+               class="text-sm font-medium text-gray-700">
+
+          Title
+
+        </label>
+
+        <input id="task-title"
+               type="text"
+               formControlName="title"
+               placeholder="Task title..."
+               class="rounded-xl border border-gray-300 px-3 py-2 transition outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+               [class.border-red-500]="form.controls.title.invalid && form.controls.title.touched" />
+
+        @if (form.controls.title.touched) {
+
+        @if (form.controls.title.hasError('required')) {
+        <p class="text-sm text-red-600">
+          Title is required.
+        </p>
+        }
+
+        @if (form.controls.title.hasError('maxlength')) {
+        <p class="text-sm text-red-600">
+          Title must be less than 100 chars.
+        </p>
+        }
+
+        }
+
+      </div>
+
+      <!-- Description -->
+
+      <div class="flex flex-col gap-1">
+
+        <label for="task-description"
+               class="text-sm font-medium text-gray-700">
+
+          Description
+
+        </label>
+
+        <textarea id="task-description"
+                  formControlName="description"
+                  rows="5"
+                  placeholder="Task description..."
+                  class="resize-none rounded-xl border border-gray-300 px-3 py-2 transition outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  [class.border-red-500]="form.controls.description.invalid && form.controls.description.touched">
+        </textarea>
+
+        @if (
+        form.controls.description.hasError('maxlength')
+        && form.controls.description.touched
+        ) {
+
+        <p class="text-sm text-red-600">
+          Description must be less than 1000 chars.
+        </p>
+
+        }
+
+      </div>
+
+      <!-- Categories -->
+
+      <div class="flex flex-col gap-2">
+
+        <div class="flex items-center justify-between">
+
+          <span class="text-sm font-medium text-gray-700">
+            Categories
+          </span>
+
+          <button type="button"
+                  (click)="openCategories()"
+                  class="rounded-lg px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:bg-blue-50">
+
+            Edit
+
+          </button>
+
+        </div>
+
+        @if (selectedCategories().length > 0) {
+
+        <div class="flex flex-wrap gap-1.5">
+
+          @for (category of selectedCategories(); track category.id) {
+
+          <span class="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">
+
+            {{ category.name }}
+
+          </span>
+
+          }
+
+        </div>
+
+        } @else {
+
+        <p class="text-sm text-gray-400">
+          No categories selected.
+        </p>
+
+        }
+
+      </div>
+
+      <!-- Done -->
+
+      <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-200 p-3 transition hover:bg-gray-50">
+
+        <input type="checkbox"
+               formControlName="done"
+               class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500/20" />
+
+        <span class="font-medium text-gray-700">
+          Completed
+        </span>
+
+      </label>
+
+      <!-- Buttons -->
+
+      <div class="mt-2 flex justify-end gap-2">
+
+        <button type="button"
+                (click)="cancel()"
+                class="rounded-xl px-4 py-2 text-gray-600 transition hover:bg-gray-100">
+
+          Cancel
+
+        </button>
+
+        <button type="submit"
+                class="rounded-xl bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700">
+
+          {{ isEditing() ? 'Save' : 'Create' }}
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+@if (editingCategories()) {
+
+<app-task-list-item-categories-form [categories]="categories()"
+                                    [selectedCategories]="editedCategories()"
+                                    (saveCategories)="saveCategories($event)"
+                                    (close)="closeCategories()" />
+
+}

@@ -1,0 +1,73 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+     (click)="cancel()">
+
+  <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+       (click)="$event.stopPropagation()">
+
+    <div class="mb-5 flex items-center justify-between">
+
+      <h2 class="text-xl font-semibold text-gray-800">
+        Edit categories
+      </h2>
+
+      <button type="button"
+              (click)="cancel()"
+              class="rounded-md p-1 text-gray-500 transition hover:bg-gray-100"
+              title="Close">
+
+        ✕
+
+      </button>
+
+    </div>
+
+    <div class="flex max-h-80 flex-col gap-1 overflow-y-auto">
+
+      @for (category of categories(); track category.id) {
+
+      <label class="flex cursor-pointer items-center gap-3 rounded-xl p-3 transition hover:bg-gray-50">
+
+        <input type="checkbox"
+               [checked]="category.id && selectedIds().includes(category.id)"
+               (change)="toggle(category.id!, $event)"
+               class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500/20" />
+
+        <span class="font-medium text-gray-700">
+          {{ category.name }}
+        </span>
+
+      </label>
+
+      } @empty {
+
+      <p class="py-6 text-center text-sm text-gray-500">
+        No categories available.
+      </p>
+
+      }
+
+    </div>
+
+    <div class="mt-5 flex justify-end gap-2">
+
+      <button type="button"
+              (click)="cancel()"
+              class="rounded-xl px-4 py-2 text-gray-600 transition hover:bg-gray-100">
+
+        Cancel
+
+      </button>
+
+      <button type="button"
+              (click)="save()"
+              class="rounded-xl bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700">
+
+        Save
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
