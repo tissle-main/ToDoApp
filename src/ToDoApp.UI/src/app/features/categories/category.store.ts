@@ -11,23 +11,23 @@ export class CategoryStore
   public readonly loading = signal(false);
   public readonly error = signal<string | null>(null);
 
-  public readonly selectedCategoryId = signal<string | null>(null);
-
-  public selectCategory(id: string | null): void
-  {
-    this.selectedCategoryId.set(id);
-  }
-
-  public clearCategory(): void
-  {
-    this.selectedCategoryId.set(null);
-  }
-
   public load()
   {
     this.loading.set(true);
 
     this.api.getCategories([]).pipe(
+      finalize(() => this.loading.set(false))
+    ).subscribe({
+      next: categories => this.categories.set(categories),
+      error: err => this.error.set(err)
+    });
+  }
+
+  public loadSpecific(ids: string[])
+  {
+    this.loading.set(true);
+
+    this.api.getCategories(ids).pipe(
       finalize(() => this.loading.set(false))
     ).subscribe({
       next: categories => this.categories.set(categories),
@@ -79,13 +79,8 @@ export class CategoryStore
       next: () =>
       {
         this.categories.update(oldCategories =>
-          oldCategories.filter(value => value.id !== id)
+          oldCategories.filter(category => category.id !== id)
         );
-
-        if (this.selectedCategoryId() === id)
-        {
-          this.clearCategory();
-        }
       },
       error: err => this.error.set(err)
     });

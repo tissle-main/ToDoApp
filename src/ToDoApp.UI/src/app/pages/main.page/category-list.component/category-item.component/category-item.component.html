@@ -1,19 +1,10 @@
 @if (!editing()) {
 
-<div class="flex items-center justify-between rounded-xl border bg-white px-4 py-1 shadow-sm transition"
-     [class.border-blue-500]="selected()"
-     [class.bg-blue-50]="selected()"
-     [class.border-gray-200]="!selected()">
+<div class="flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-1 shadow-sm">
 
-  <button type="button"
-          (click)="select()"
-          class="min-w-0 flex-1 truncate text-left font-medium transition"
-          [class.text-blue-700]="selected()"
-          [class.text-gray-800]="!selected()">
-
+  <span class="min-w-0 flex-1 truncate font-medium text-gray-800">
     {{ category().name }}
-
-  </button>
+  </span>
 
   <div class="ml-2 flex shrink-0 items-center gap-1">
 

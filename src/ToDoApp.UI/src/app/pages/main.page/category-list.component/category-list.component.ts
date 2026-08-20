@@ -6,42 +6,41 @@ import { CategoryDto } from '../../../api';
 
 @Component({
   selector: 'app-category-list',
-  imports: [CategoryItemComponent, AddCategoryButtonComponent],
+  imports: [
+    CategoryItemComponent,
+    AddCategoryButtonComponent
+  ],
   templateUrl: './category-list.component.html',
   styleUrl: './category-list.component.css',
 })
 export class CategoryListComponent implements OnInit
 {
   private readonly categoryStore = inject(CategoryStore);
-  public readonly loading = computed(() => this.categoryStore.loading());
-  public readonly categories = computed(() => this.categoryStore.categories());
-  public readonly selectedCategoryId = computed(() =>
-    this.categoryStore.selectedCategoryId()
+
+  public readonly loading = computed(() =>
+    this.categoryStore.loading()
   );
 
-  public addCategory(dto: CategoryDto)
+  public readonly categories = computed(() =>
+    this.categoryStore.categories()
+  );
+
+  public addCategory(dto: CategoryDto): void
   {
     this.categoryStore.create(dto);
   }
-  public saveCategory(dto: CategoryDto)
+
+  public saveCategory(dto: CategoryDto): void
   {
     this.categoryStore.update(dto);
   }
-  public deleteCategory(id: string)
+
+  public deleteCategory(id: string): void
   {
     this.categoryStore.delete(id);
   }
-  public selectCategory(id: string): void
-  {
-    if (this.selectedCategoryId() === id)
-    {
-      this.categoryStore.clearCategory();
-      return;
-    }
 
-    this.categoryStore.selectCategory(id);
-  }
-  public ngOnInit()
+  public ngOnInit(): void
   {
     this.categoryStore.load();
   }

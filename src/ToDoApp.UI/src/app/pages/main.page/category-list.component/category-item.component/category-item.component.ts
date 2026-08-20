@@ -14,12 +14,10 @@ export class CategoryItemComponent
   public readonly category = input.required<CategoryDto>();
   public readonly saveCategory = output<CategoryDto>();
   public readonly deleteCategory = output<string>();
-  public readonly selectCategory = output<string>();
   public readonly editing = signal(false);
   public readonly form = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(50)]],
   });
-  public readonly selected = input<boolean>(false);
 
   constructor()
   {
@@ -63,13 +61,6 @@ export class CategoryItemComponent
     if (this.category().id)
     {
       this.deleteCategory.emit(this.category().id!);
-    }
-  }
-  public select(): void
-  {
-    if (this.category().id)
-    {
-      this.selectCategory.emit(this.category().id!);
     }
   }
 }

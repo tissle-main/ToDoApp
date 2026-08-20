@@ -7,8 +7,6 @@
     @for (category of categories(); track category.id)
     {
     <app-category-item [category]="category"
-                       [selected]="selectedCategoryId() === category.id"
-                       (selectCategory)="selectCategory($event)"
                        (saveCategory)="saveCategory($event)"
                        (deleteCategory)="deleteCategory($event)" />
     }

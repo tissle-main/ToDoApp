@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, computed, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { TaskStore } from '../../../features/tasks/task.store';
 import { CategoryStore } from '../../../features/categories/category.store';
 import { TaskDto } from '../../../api';
@@ -7,46 +8,51 @@ import { TaskListItemFormComponent } from './task-list-item.component/task-list-
 
 @Component({
   selector: 'app-task-list',
-  imports: [TaskListItemComponent, TaskListItemFormComponent],
+  imports: [
+    FormsModule,
+    TaskListItemComponent,
+    TaskListItemFormComponent
+  ],
   templateUrl: './task-list.component.html',
   styleUrl: './task-list.component.css',
 })
 export class TaskListComponent implements OnInit
 {
-  private readonly taskStore = inject(TaskStore);
-  private readonly categoryStore = inject(CategoryStore);
-  public readonly loading = computed(() => this.taskStore.loading());
+  public readonly taskStore = inject(TaskStore);
+  public readonly categoryStore = inject(CategoryStore);
+
+  public readonly loading = computed(() =>
+    this.taskStore.loading()
+  );
+
   public readonly tasks = computed(() =>
-  {
-    const tasks = this.taskStore.tasks();
-    const categoryId = this.categoryStore.selectedCategoryId();
+    this.taskStore.tasks()
+  );
 
-    if (!categoryId)
-    {
-      return tasks;
-    }
+  public readonly categories = computed(() =>
+    this.categoryStore.categories()
+  );
 
-    return tasks.filter(task =>
-      task.categories?.includes(categoryId)
-    );
-  });
-  public readonly categories = computed(() => this.categoryStore.categories());
   public readonly showTaskForm = signal(false);
   public readonly editingTask = signal<TaskDto | null>(null);
-  public readonly selectedCategoryId = computed(() =>
-    this.categoryStore.selectedCategoryId()
-  );
-  
+
+  // UI state
+
+  public readonly search = signal('');
+  public readonly selectedDone = signal<boolean | undefined>(undefined);
+
   public addTask(): void
   {
     this.editingTask.set(null);
     this.showTaskForm.set(true);
   }
+
   public editTask(task: TaskDto): void
   {
     this.editingTask.set(task);
     this.showTaskForm.set(true);
   }
+
   public saveTask(dto: TaskDto): void
   {
     if (dto.id)
@@ -60,15 +66,37 @@ export class TaskListComponent implements OnInit
 
     this.showTaskForm.set(false);
   }
+
   public deleteTask(id: string): void
   {
     this.taskStore.delete(id);
   }
+
   public closeTaskForm(): void
   {
     this.showTaskForm.set(false);
   }
-  public ngOnInit()
+
+  public onSearchChange(value: string): void
+  {
+    this.search.set(value);
+
+    this.taskStore.setSearch(value);
+  }
+
+  public setDone(value: boolean | undefined): void
+  {
+    this.selectedDone.set(value);
+
+    this.taskStore.setDone(value);
+  }
+
+  public selectCategory(category: string | undefined): void
+  {
+    this.taskStore.setCategory(category);
+  }
+
+  public ngOnInit(): void
   {
     this.taskStore.load();
   }

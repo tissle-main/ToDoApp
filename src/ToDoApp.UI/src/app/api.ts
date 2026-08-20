@@ -31,7 +31,7 @@ export class Api {
      * @return No Content
      */
     registerUser(body: RegisterUserCommand): Observable<void> {
-        let url_ = this.baseUrl + "/auth/register";
+        let url_ = this.baseUrl + "/api/auth/register";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -100,7 +100,7 @@ export class Api {
      * @return OK
      */
     loginUser(body: LoginUserCommand): Observable<LoginUserResponse> {
-        let url_ = this.baseUrl + "/auth/login";
+        let url_ = this.baseUrl + "/api/auth/login";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -172,7 +172,7 @@ export class Api {
      * @return OK
      */
     refreshAccessToken(): Observable<RefreshAccessTokenResponse> {
-        let url_ = this.baseUrl + "/auth/refresh-token";
+        let url_ = this.baseUrl + "/api/auth/refresh-token";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -234,7 +234,7 @@ export class Api {
      * @return No Content
      */
     deleteUser(): Observable<void> {
-        let url_ = this.baseUrl + "/auth/delete";
+        let url_ = this.baseUrl + "/api/auth/delete";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -293,7 +293,7 @@ export class Api {
      * @return OK
      */
     getCategories(ids: string[]): Observable<CategoryDto[]> {
-        let url_ = this.baseUrl + "/categories?";
+        let url_ = this.baseUrl + "/api/categories?";
         if (ids === undefined || ids === null)
             throw new globalThis.Error("The parameter 'ids' must be defined and cannot be null.");
         else
@@ -359,7 +359,7 @@ export class Api {
      * @return OK
      */
     createCategory(body: CategoryDto): Observable<string> {
-        let url_ = this.baseUrl + "/categories";
+        let url_ = this.baseUrl + "/api/categories";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -437,7 +437,7 @@ export class Api {
      * @return No Content
      */
     updateCategory(body: CategoryDto): Observable<void> {
-        let url_ = this.baseUrl + "/categories";
+        let url_ = this.baseUrl + "/api/categories";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -512,7 +512,7 @@ export class Api {
      * @return No Content
      */
     deleteCategories(ids: string[]): Observable<void> {
-        let url_ = this.baseUrl + "/categories?";
+        let url_ = this.baseUrl + "/api/categories?";
         if (ids === undefined || ids === null)
             throw new globalThis.Error("The parameter 'ids' must be defined and cannot be null.");
         else
@@ -575,7 +575,7 @@ export class Api {
      * @return OK
      */
     getTasks(ids: string[]): Observable<TaskDto[]> {
-        let url_ = this.baseUrl + "/tasks?";
+        let url_ = this.baseUrl + "/api/tasks?";
         if (ids === undefined || ids === null)
             throw new globalThis.Error("The parameter 'ids' must be defined and cannot be null.");
         else
@@ -641,7 +641,7 @@ export class Api {
      * @return OK
      */
     createTask(body: TaskDto): Observable<string> {
-        let url_ = this.baseUrl + "/tasks";
+        let url_ = this.baseUrl + "/api/tasks";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -719,7 +719,7 @@ export class Api {
      * @return No Content
      */
     updateTask(body: TaskDto): Observable<void> {
-        let url_ = this.baseUrl + "/tasks";
+        let url_ = this.baseUrl + "/api/tasks";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -794,7 +794,7 @@ export class Api {
      * @return No Content
      */
     deleteTasks(ids: string[]): Observable<void> {
-        let url_ = this.baseUrl + "/tasks?";
+        let url_ = this.baseUrl + "/api/tasks?";
         if (ids === undefined || ids === null)
             throw new globalThis.Error("The parameter 'ids' must be defined and cannot be null.");
         else
@@ -861,8 +861,8 @@ export class Api {
      * @param take (optional) 
      * @return OK
      */
-    getTasksByFilter(search?: string | undefined, category?: string | undefined, done?: boolean | undefined, skip?: number | undefined, take?: number | undefined): Observable<TaskDto[]> {
-        let url_ = this.baseUrl + "/tasks/filter?";
+    getTasksByFilter(search?: string | undefined, category?: string | undefined, done?: boolean | undefined, skip?: number | undefined, take?: number | undefined): Observable<GetTasksByFilterResponse> {
+        let url_ = this.baseUrl + "/api/tasks/filter?";
         if (search === null)
             throw new globalThis.Error("The parameter 'search' cannot be null.");
         else if (search !== undefined)
@@ -900,14 +900,14 @@ export class Api {
                 try {
                     return this.processGetTasksByFilter(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<TaskDto[]>;
+                    return _observableThrow(e) as any as Observable<GetTasksByFilterResponse>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<TaskDto[]>;
+                return _observableThrow(response_) as any as Observable<GetTasksByFilterResponse>;
         }));
     }
 
-    protected processGetTasksByFilter(response: HttpResponseBase): Observable<TaskDto[]> {
+    protected processGetTasksByFilter(response: HttpResponseBase): Observable<GetTasksByFilterResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -917,7 +917,7 @@ export class Api {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as TaskDto[];
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as GetTasksByFilterResponse;
             return _observableOf(result200);
             }));
         } else if (status === 401) {
@@ -945,6 +945,13 @@ export interface CategoryDto {
     id?: string;
     name: string;
     tasks?: string[];
+
+    [key: string]: any;
+}
+
+export interface GetTasksByFilterResponse {
+    totalCount: number;
+    tasks: TaskDto[];
 
     [key: string]: any;
 }
