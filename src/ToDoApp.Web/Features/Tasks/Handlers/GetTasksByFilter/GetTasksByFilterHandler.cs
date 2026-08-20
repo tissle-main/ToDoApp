@@ -16,6 +16,7 @@ public sealed class GetTasksByFilterHandler(AppDbContext thisDbContext) : IQuery
     {
         UserEntity user = query.User;
         IQueryable<TaskEntity> tasks = thisDbContext.Tasks.Where(e => e.UserId == user.Id);
+        int totalCount = await tasks.CountAsync(cancellationToken);
         if(query.Category is not null)
         {
             tasks = tasks.Include(e => e.Categories).ThenInclude(je => je.Right);
@@ -39,6 +40,7 @@ public sealed class GetTasksByFilterHandler(AppDbContext thisDbContext) : IQuery
         {
             tasks = tasks.Where(e => e.Done == done);
         }
+        tasks = tasks.OrderByDescending(e => e.Id);
         if(query.Skip is int skip)
         {
             tasks = tasks.Skip(skip);
@@ -47,7 +49,7 @@ public sealed class GetTasksByFilterHandler(AppDbContext thisDbContext) : IQuery
         {
             tasks = tasks.Take(take);
         }
-        return new GetTasksByFilterResponse(await tasks.ProjectToDto().ToArrayAsync(cancellationToken));
+        return new GetTasksByFilterResponse(totalCount, await tasks.ProjectToDto().ToArrayAsync(cancellationToken));
     }
     #endregion
 }

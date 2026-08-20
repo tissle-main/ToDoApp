@@ -36,9 +36,10 @@ public sealed class GetTasksByFilterHandlerTests(ToDoAppFixture thisApp)
 
         //Assert
         message.Should().Be200Ok();
-        TaskDto[]? response = await message.Content.ReadFromJsonAsync<TaskDto[]>(TestContext.Current.CancellationToken);
+        GetTasksByFilterResponse? response = await message.Content.ReadFromJsonAsync<GetTasksByFilterResponse>(TestContext.Current.CancellationToken);
         response.Should().NotBeNull();
-        response.Should().BeEquivalentTo(tasks.ToDtos());
+        response.TotalCount.Should().Be(tasks.Length);
+        response.Tasks.Should().BeEquivalentTo(tasks.OrderByDescending(e => e.Id).ToDtos());
     }
 
     [Fact]
@@ -52,6 +53,7 @@ public sealed class GetTasksByFilterHandlerTests(ToDoAppFixture thisApp)
             await new Faker<TaskEntity>().ValidInstance().SeedDatabaseForAllUsersAsync(db, TestContext.Current.CancellationToken);
             return await db.Tasks.Where(e => e.UserId == user.Id).ToArrayAsync(TestContext.Current.CancellationToken);
         });
+        int expectedTotalCount = tasks.Length;
         TaskEntity task = Faker.PickRandom(tasks);
         string search = Faker.Random.Substring(task.Title);
         tasks = tasks.Where(t => t.Title.Contains(search) || t.Description?.Contains(search) is true).ToArray();
@@ -63,9 +65,10 @@ public sealed class GetTasksByFilterHandlerTests(ToDoAppFixture thisApp)
 
         //Assert
         message.Should().Be200Ok();
-        TaskDto[]? response = await message.Content.ReadFromJsonAsync<TaskDto[]>(TestContext.Current.CancellationToken);
+        GetTasksByFilterResponse? response = await message.Content.ReadFromJsonAsync<GetTasksByFilterResponse>(TestContext.Current.CancellationToken);
         response.Should().NotBeNull();
-        response.Should().BeEquivalentTo(tasks.ToDtos());
+        response.TotalCount.Should().Be(expectedTotalCount);
+        response.Tasks.Should().BeEquivalentTo(tasks.OrderByDescending(e => e.Id).ToDtos());
     }
 
     [Fact]
@@ -83,6 +86,7 @@ public sealed class GetTasksByFilterHandlerTests(ToDoAppFixture thisApp)
                 TestContext.Current.CancellationToken
             );
         });
+        int expectedTotalCount = tasks.Length;
         TaskEntity task = Faker.PickRandom(tasks);
         string[] categories = task.Categories.Select(je => je.Right!.Name).ToArray();
         string category = Faker.PickRandom(categories);
@@ -95,9 +99,10 @@ public sealed class GetTasksByFilterHandlerTests(ToDoAppFixture thisApp)
 
         //Assert
         message.Should().Be200Ok();
-        TaskDto[]? response = await message.Content.ReadFromJsonAsync<TaskDto[]>(TestContext.Current.CancellationToken);
+        GetTasksByFilterResponse? response = await message.Content.ReadFromJsonAsync<GetTasksByFilterResponse>(TestContext.Current.CancellationToken);
         response.Should().NotBeNull();
-        response.Should().BeEquivalentTo(tasks.ToDtos());
+        response.TotalCount.Should().Be(expectedTotalCount);
+        response.Tasks.Should().BeEquivalentTo(tasks.OrderByDescending(e => e.Id).ToDtos());
     }
 
     [Fact]
@@ -114,6 +119,7 @@ public sealed class GetTasksByFilterHandlerTests(ToDoAppFixture thisApp)
             );
         });
         TaskEntity task = Faker.PickRandom(tasks);
+        int expectedTotalCount = tasks.Length;
         tasks = tasks.Where(t => t.Done == task.Done).ToArray();
 
         GetTasksByFilterQuery query = new Faker<GetTasksByFilterQuery>().ValidInstance().WithDone(task.Done).Generate();
@@ -123,9 +129,10 @@ public sealed class GetTasksByFilterHandlerTests(ToDoAppFixture thisApp)
 
         //Assert
         message.Should().Be200Ok();
-        TaskDto[]? response = await message.Content.ReadFromJsonAsync<TaskDto[]>(TestContext.Current.CancellationToken);
+        GetTasksByFilterResponse? response = await message.Content.ReadFromJsonAsync<GetTasksByFilterResponse>(TestContext.Current.CancellationToken);
         response.Should().NotBeNull();
-        response.Should().BeEquivalentTo(tasks.ToDtos());
+        response.TotalCount.Should().Be(expectedTotalCount);
+        response.Tasks.Should().BeEquivalentTo(tasks.OrderByDescending(e => e.Id).ToDtos());
     }
 
     [Fact]
@@ -141,8 +148,9 @@ public sealed class GetTasksByFilterHandlerTests(ToDoAppFixture thisApp)
                 TestContext.Current.CancellationToken
             );
         });
+        int expectedTotalCount = tasks.Length;
         int skip = Faker.Random.Number(1, tasks.Length - 1);
-        tasks = tasks.Skip(skip).ToArray();
+        tasks = tasks.OrderByDescending(e => e.Id).Skip(skip).ToArray();
 
         GetTasksByFilterQuery query = new Faker<GetTasksByFilterQuery>().ValidInstance().WithSkip(skip).Generate();
 
@@ -151,9 +159,10 @@ public sealed class GetTasksByFilterHandlerTests(ToDoAppFixture thisApp)
 
         //Assert
         message.Should().Be200Ok();
-        TaskDto[]? response = await message.Content.ReadFromJsonAsync<TaskDto[]>(TestContext.Current.CancellationToken);
+        GetTasksByFilterResponse? response = await message.Content.ReadFromJsonAsync<GetTasksByFilterResponse>(TestContext.Current.CancellationToken);
         response.Should().NotBeNull();
-        response.Should().BeEquivalentTo(tasks.ToDtos());
+        response.TotalCount.Should().Be(expectedTotalCount);
+        response.Tasks.Should().BeEquivalentTo(tasks.ToDtos());
     }
 
     [Fact]
@@ -169,8 +178,9 @@ public sealed class GetTasksByFilterHandlerTests(ToDoAppFixture thisApp)
                 TestContext.Current.CancellationToken
             );
         });
+        int expectedTotalCount = tasks.Length;
         int take = Faker.Random.Number(1, tasks.Length - 1);
-        tasks = tasks.Take(take).ToArray();
+        tasks = tasks.OrderByDescending(e => e.Id).Take(take).ToArray();
 
         GetTasksByFilterQuery query = new Faker<GetTasksByFilterQuery>().ValidInstance().WithTake(take).Generate();
 
@@ -179,9 +189,10 @@ public sealed class GetTasksByFilterHandlerTests(ToDoAppFixture thisApp)
 
         //Assert
         message.Should().Be200Ok();
-        TaskDto[]? response = await message.Content.ReadFromJsonAsync<TaskDto[]>(TestContext.Current.CancellationToken);
+        GetTasksByFilterResponse? response = await message.Content.ReadFromJsonAsync<GetTasksByFilterResponse>(TestContext.Current.CancellationToken);
         response.Should().NotBeNull();
-        response.Should().BeEquivalentTo(tasks.ToDtos());
+        response.TotalCount.Should().Be(expectedTotalCount);
+        response.Tasks.Should().BeEquivalentTo(tasks.ToDtos());
     }
 
     [Fact]

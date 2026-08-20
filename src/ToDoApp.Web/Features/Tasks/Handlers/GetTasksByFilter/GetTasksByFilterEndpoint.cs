@@ -3,7 +3,6 @@ using Mediator;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
 using ToDoApp.Web.Shared.Extensions;
-using ToDoApp.Web.Features.Tasks.Dtos;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
@@ -49,7 +48,7 @@ public static class GetTasksEndpoint
     )
     {
         ErrorOr<GetTasksByFilterResponse> response = await mediator.Send(new GetTasksByFilterQuery(search, category, done, skip, take), cancellationToken);
-        return response.Then(value => value.Tasks).ToHttpResult();
+        return response.ToHttpResult();
     }
 
     extension(RouteHandlerBuilder thisBuilder)
@@ -66,7 +65,7 @@ public static class GetTasksEndpoint
         {
             thisApp.MapGet(Url, GetTasksByFilter).RequireAuthorization()
                 .WithName(nameof(GetTasksByFilter))
-                .Produces<IEnumerable<TaskDto>>(StatusCodes.Status200OK)
+                .Produces<GetTasksByFilterResponse>(StatusCodes.Status200OK)
                 .AddGetTasksByFilterProductionProblems();
         }
     }

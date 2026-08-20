@@ -2,4 +2,4 @@
 
 namespace ToDoApp.Web.Features.Tasks.Handlers.GetTasksByFilter;
 
-public sealed record class GetTasksByFilterResponse(IEnumerable<TaskDto> Tasks);
+public sealed record class GetTasksByFilterResponse(int TotalCount, IEnumerable<TaskDto> Tasks);
