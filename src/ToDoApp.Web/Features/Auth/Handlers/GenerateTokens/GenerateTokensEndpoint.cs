@@ -9,7 +9,7 @@ namespace ToDoApp.Web.Features.Auth.Handlers.GenerateTokens;
 
 public static class GenerateTokensEndpoint
 {
-    public const string Url = "/auth/generate-tokens";
+    public const string Url = "/api/auth/generate-tokens";
 
     public static async Task<IResult> GenerateTokens(
         [FromBody] UserEntity user,

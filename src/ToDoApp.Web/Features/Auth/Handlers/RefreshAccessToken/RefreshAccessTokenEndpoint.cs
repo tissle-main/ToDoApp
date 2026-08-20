@@ -8,7 +8,7 @@ namespace ToDoApp.Web.Features.Auth.Handlers.RefreshAccessToken;
 
 public static class RefreshAccessTokenEndpoint
 {
-    public const string Url = "/auth/refresh-token";
+    public const string Url = "/api/auth/refresh-token";
 
     public static async Task<IResult> RefreshAccessToken(
         [FromServices] IMediator mediator,

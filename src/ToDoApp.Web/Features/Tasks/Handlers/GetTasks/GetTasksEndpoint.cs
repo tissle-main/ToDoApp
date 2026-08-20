@@ -11,7 +11,7 @@ namespace ToDoApp.Web.Features.Tasks.Handlers.GetTasks;
 
 public static class GetTasksEndpoint
 {
-    public const string Url = "/tasks";
+    public const string Url = "/api/tasks";
 
     public static string CreateSendableUrl(Guid[] ids)
     {

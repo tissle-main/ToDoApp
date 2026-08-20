@@ -29,14 +29,6 @@ public static class AuthErrors
     {
         return Error.Failure("Auth.InvalidPassword", "Entered invalid password.");
     }
-    public static Error RefreshTokenNotFound()
-    {
-        return Error.NotFound("Auth.RefreshTokenNotFound", "Refresh token not found.");
-    }
-    public static Error RefreshTokenExpired()
-    {
-        return Error.Failure("Auth.RefreshTokenExpired", "Refresh token expired.");
-    }
 
     extension(IdentityResult thisResult)
     {

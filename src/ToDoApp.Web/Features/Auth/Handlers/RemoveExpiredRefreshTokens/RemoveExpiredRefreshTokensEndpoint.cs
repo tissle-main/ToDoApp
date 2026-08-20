@@ -7,7 +7,7 @@ namespace ToDoApp.Web.Features.Auth.Handlers.RemoveExpiredRefreshTokens;
 
 public static class RemoveExpiredRefreshTokensEndpoint
 {
-    public const string Url = "/auth/remove-expired-refresh-tokens";
+    public const string Url = "/api/auth/remove-expired-refresh-tokens";
 
     public static async Task<IResult> RemoveExpiredRefreshTokens(
         [FromServices] IMediator mediator,

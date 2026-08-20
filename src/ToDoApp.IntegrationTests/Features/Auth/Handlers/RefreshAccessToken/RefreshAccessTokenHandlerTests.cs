@@ -94,7 +94,7 @@ public sealed class RefreshAccessTokenHandlerTests(ToDoAppFixture thisApp)
         using HttpResponseMessage response = await thisApp.HttpClient.SendRefreshAccessTokenAsync(TestContext.Current.CancellationToken);
 
         //Assert
-        response.Should().Be404NotFound();
+        response.Should().Be401Unauthorized();
     }
 
     [Fact]
@@ -115,6 +115,6 @@ public sealed class RefreshAccessTokenHandlerTests(ToDoAppFixture thisApp)
         using HttpResponseMessage response = await thisApp.HttpClient.SendRefreshAccessTokenAsync(TestContext.Current.CancellationToken);
 
         //Assert
-        response.Should().Be400BadRequest();
+        response.Should().Be401Unauthorized();
     }
 }

@@ -12,6 +12,8 @@ namespace ToDoApp.Web;
 
 public static class DIContainer
 {
+    private const string UICorsPolicy = "UI_CORS";
+
     private static FrozenSet<FeatureProvider> Features { get; set; } = [];
 
     extension(WebApplicationBuilder thisBuilder)
@@ -20,7 +22,7 @@ public static class DIContainer
         {
             thisBuilder.Services.AddDbContext<AppDbContext>(options =>
             {
-                string? connectionStr = thisBuilder.Configuration.GetConnectionString(AppResources.Database);
+                string? connectionStr = thisBuilder.Configuration.GetConnectionString(AppHostConstants.Database);
                 options.UseSqlServer(connectionStr, builder =>
                 {
                     builder.MigrationsAssembly(typeof(AppDbContext).Assembly.GetName().Name);
@@ -34,8 +36,23 @@ public static class DIContainer
                 };
             });
             thisBuilder.Configuration.AddUserSecrets<Program>();
+            thisBuilder.AddUICors();
             thisBuilder.AddCQRS();
             thisBuilder.AddFeatures();
+        }
+        public void AddUICors()
+        {
+            thisBuilder.Services.AddCors(options =>
+            {
+                string? uiOrigin = thisBuilder.Configuration[AppHostConstants.UIOrigin];
+                if(uiOrigin is not null)
+                {
+                    options.AddPolicy(UICorsPolicy, policy =>
+                    {
+                        policy.WithOrigins(uiOrigin).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                    });
+                }
+            });
         }
         public void AddCQRS()
         {
@@ -71,6 +88,7 @@ public static class DIContainer
         public void UseCore()
         {
             thisApp.MigrateDatabase();
+            thisApp.UseUICors();
             thisApp.UseFeatures();
         }
         public void MigrateDatabase()
@@ -78,6 +96,10 @@ public static class DIContainer
             using IServiceScope scope = thisApp.Services.CreateScope();
             AppDbContext dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             dbContext.Database.Migrate();
+        }
+        public void UseUICors()
+        {
+            thisApp.UseCors(UICorsPolicy);
         }
         public void UseFeatures()
         {

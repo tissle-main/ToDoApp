@@ -11,6 +11,7 @@ import { LoginPage } from './app/pages/login.page/login.page';
 import { guestGuard } from './app/features/auth/guest.guard';
 import { MainPage } from './app/pages/main.page/main.page';
 import { authGuard } from './app/features/auth/auth.guard';
+import { UserStore } from './app/features/auth/user/user.store';
 
 const routes: Routes = [
   {
@@ -34,6 +35,7 @@ const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideAppInitializer(() => inject(AuthTokenStore).restoreToken()),
+    provideAppInitializer(() => inject(UserStore).restoreUser()),
     provideHttpClient(
       withInterceptors([authInterceptor])
     ),

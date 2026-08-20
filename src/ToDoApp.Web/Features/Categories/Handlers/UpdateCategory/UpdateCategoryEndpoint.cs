@@ -11,7 +11,7 @@ namespace ToDoApp.Web.Features.Categories.Handlers.UpdateCategory;
 
 public static class UpdateCategoryEndpoint
 {
-    public const string Url = "/categories";
+    public const string Url = "/api/categories";
 
     public static async Task<IResult> UpdateCategory(
         [FromBody] CategoryDto dto,

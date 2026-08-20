@@ -21,19 +21,15 @@ public sealed class RefreshAccessTokenHandler(
     {
         if(thisHttpContextAccessor.HttpContext!.GetRefreshToken() is not string refreshToken)
         {
-            return AuthErrors.RefreshTokenNotFound();
+            return Error.Unauthorized();
         }
         RefreshTokenEntity? entity = await thisDbContext.RefreshTokens.Include(e => e.User).FirstOrDefaultAsync(
             e => e.Value == refreshToken,
             cancellationToken
         );
-        if(entity is null)
+        if(entity is null || DateTime.UtcNow > entity.ExpiresAt)
         {
-            return AuthErrors.RefreshTokenNotFound();
-        }
-        if(DateTime.UtcNow > entity.ExpiresAt)
-        {
-            return AuthErrors.RefreshTokenExpired();
+            return Error.Unauthorized();
         }
         thisDbContext.RefreshTokens.Remove(entity);
         await thisDbContext.SaveChangesAsync(cancellationToken);

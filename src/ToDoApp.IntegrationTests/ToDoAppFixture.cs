@@ -45,8 +45,8 @@ public sealed class ToDoAppFixture : IAsyncLifetime
                 TestContext.Current.CancellationToken.ThrowIfCancellationRequested();
                 Environment.SetEnvironmentVariable("DOTNET_LAUNCH_PROFILE", "Test");
                 await Application.StartAsync(TestContext.Current.CancellationToken);
-                HttpClient = Application.CreateHttpClient(AppResources.Web);
-                ConnectionString = await Application.GetConnectionString(AppResources.Database) ?? throw new NullReferenceException("ConnectionString is null");
+                HttpClient = Application.CreateHttpClient(AppHostConstants.Web);
+                ConnectionString = await Application.GetConnectionString(AppHostConstants.Database) ?? throw new NullReferenceException("ConnectionString is null");
                 DbOptions = new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(ConnectionString).Options;
                 await ExecuteDbContextAsync(async db =>
                 {

@@ -11,7 +11,7 @@ namespace ToDoApp.Web.Features.Tasks.Handlers.GetTasksByFilter;
 
 public static class GetTasksEndpoint
 {
-    public const string Url = "/tasks/filter";
+    public const string Url = "/api/tasks/filter";
 
     public static string CreateSendableUrl(GetTasksByFilterQuery query)
     {

@@ -10,7 +10,7 @@ namespace ToDoApp.Web.Features.Tasks.Handlers.DeleteTasks;
 
 public static class DeleteTasksEndpoint
 {
-    public const string Url = "/tasks";
+    public const string Url = "/api/tasks";
 
     public static string CreateSendableUrl(Guid[] ids)
     {

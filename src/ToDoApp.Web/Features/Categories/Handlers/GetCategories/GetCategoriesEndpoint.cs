@@ -11,7 +11,7 @@ namespace ToDoApp.Web.Features.Categories.Handlers.GetCategories;
 
 public static class GetCategoriesEndpoint
 {
-    public const string Url = "/categories";
+    public const string Url = "/api/categories";
 
     public static string CreateSendableUrl(Guid[] ids)
     {

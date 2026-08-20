@@ -8,6 +8,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) =>
 {
   const tokenStore = inject(AuthTokenStore);
   const authService = inject(AuthService);
+
   if (request.url.endsWith('/auth/refresh-token'))
   {
     return next(
@@ -18,6 +19,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) =>
   }
 
   const token = tokenStore.token();
+
   const authRequest = request.clone({
     withCredentials: true,
     ...(token && {
@@ -34,15 +36,15 @@ export const authInterceptor: HttpInterceptorFn = (request, next) =>
       {
         return throwError(() => error);
       }
+
       return authService.refreshAccessToken().pipe(
-        switchMap(newToken =>
+        switchMap(response =>
         {
-          tokenStore.setToken(newToken.accessToken);
           return next(
             request.clone({
               withCredentials: true,
               setHeaders: {
-                Authorization: `Bearer ${newToken}`
+                Authorization: `Bearer ${response.accessToken}`
               }
             })
           );

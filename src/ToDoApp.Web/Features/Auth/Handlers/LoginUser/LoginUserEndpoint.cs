@@ -8,7 +8,7 @@ namespace ToDoApp.Web.Features.Auth.Handlers.LoginUser;
 
 public static class LoginUserEndpoint
 {
-    public const string Url = "/auth/login";
+    public const string Url = "/api/auth/login";
 
     public static async Task<IResult> LoginUser(
         [FromBody] LoginUserCommand command,

@@ -11,7 +11,7 @@ namespace ToDoApp.Web.Features.Tasks.Handlers.CreateTask;
 
 public static class CreateTaskEndpoint
 {
-    public const string Url = "/tasks";
+    public const string Url = "/api/tasks";
 
     public static async Task<IResult> CreateTask(
         [FromBody] TaskDto dto,

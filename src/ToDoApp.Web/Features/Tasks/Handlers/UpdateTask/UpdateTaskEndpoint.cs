@@ -11,7 +11,7 @@ namespace ToDoApp.Web.Features.Tasks.Handlers.UpdateTask;
 
 public static class UpdateTaskEndpoint
 {
-    public const string Url = "/tasks";
+    public const string Url = "/api/tasks";
 
     public static async Task<IResult> UpdateTask(
         [FromBody] TaskDto dto,

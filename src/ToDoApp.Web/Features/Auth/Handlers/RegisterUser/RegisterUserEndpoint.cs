@@ -7,7 +7,7 @@ namespace ToDoApp.Web.Features.Auth.Handlers.RegisterUser;
 
 public static class RegisterUserEndpoint
 {
-    public const string Url = "/auth/register";
+    public const string Url = "/api/auth/register";
 
     public static async Task<IResult> RegisterUser(
         [FromBody] RegisterUserCommand command,

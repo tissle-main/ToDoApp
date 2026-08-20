@@ -1,9 +1,10 @@
 ﻿namespace ToDoApp.ServiceDefaults;
 
-public static class AppResources
+public static class AppHostConstants
 {
-    public const string Sql = "todoapp-sql";
+    public const string SqlServer = "todoapp-sqlserver";
     public const string Database = "todoapp-database";
     public const string Web = "todoapp-web";
     public const string UI = "todoapp-ui";
+    public const string UIOrigin = "UI_ORIGIN";
 }

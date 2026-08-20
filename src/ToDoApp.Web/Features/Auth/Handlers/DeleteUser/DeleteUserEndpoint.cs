@@ -11,7 +11,7 @@ namespace ToDoApp.Web.Features.Auth.Handlers.DeleteUser;
 
 public static class DeleteUserEndpoint
 {
-    public const string Url = "/auth/delete";
+    public const string Url = "/api/auth/delete";
 
     public static async Task<IResult> DeleteUser(
         [FromServices] IMediator mediator,

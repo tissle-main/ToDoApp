@@ -10,7 +10,7 @@ namespace ToDoApp.Web.Features.Categories.Handlers.DeleteCategories;
 
 public static class DeleteCategoriesEndpoint
 {
-    public const string Url = "/categories";
+    public const string Url = "/api/categories";
 
     public static string CreateSendableUrl(Guid[] ids)
     {

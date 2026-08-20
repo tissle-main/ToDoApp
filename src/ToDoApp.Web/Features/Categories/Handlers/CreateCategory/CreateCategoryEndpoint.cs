@@ -11,7 +11,7 @@ namespace ToDoApp.Web.Features.Categories.Handlers.CreateCategory;
 
 public static class CreateCategoryEndpoint
 {
-    public const string Url = "/categories";
+    public const string Url = "/api/categories";
 
     public static async Task<IResult> CreateCategory(
         [FromBody] CategoryDto dto,
