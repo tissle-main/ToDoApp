@@ -33,7 +33,7 @@ public sealed class GetCategoriesHandlerTests(ToDoAppFixture thisApp)
         message.Should().Be200Ok();
         CategoryDto[]? response = await message.Content.ReadFromJsonAsync<CategoryDto[]>(TestContext.Current.CancellationToken);
         response.Should().NotBeNull();
-        response.Should().BeEquivalentTo(categories.OrderBy(e => e.Id).ToDtos());
+        response.Should().BeEquivalentTo(categories.OrderBy(e => e.CreatedAt).ToDtos());
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public sealed class GetCategoriesHandlerTests(ToDoAppFixture thisApp)
         message.Should().Be200Ok();
         CategoryDto[]? response = await message.Content.ReadFromJsonAsync<CategoryDto[]>(TestContext.Current.CancellationToken);
         response.Should().NotBeNull();
-        response.Should().BeEquivalentTo(categories.Where(e => ids.Contains(e.Id)).OrderBy(e => e.Id).ToDtos());
+        response.Should().BeEquivalentTo(categories.Where(e => ids.Contains(e.Id)).OrderBy(e => e.CreatedAt).ToDtos());
     }
 
     [Fact]

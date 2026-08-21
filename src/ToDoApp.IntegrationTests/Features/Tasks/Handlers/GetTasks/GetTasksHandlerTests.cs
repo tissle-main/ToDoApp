@@ -34,7 +34,7 @@ public sealed class GetTasksHandlerTests(ToDoAppFixture thisApp)
         message.Should().Be200Ok();
         TaskDto[]? response = await message.Content.ReadFromJsonAsync<TaskDto[]>(TestContext.Current.CancellationToken);
         response.Should().NotBeNull();
-        response.Should().BeEquivalentTo(tasks.OrderByDescending(e => e.Id).ToDtos());
+        response.Should().BeEquivalentTo(tasks.OrderByDescending(e => e.CreatedAt).ToDtos());
     }
 
     [Fact]
@@ -58,7 +58,7 @@ public sealed class GetTasksHandlerTests(ToDoAppFixture thisApp)
         message.Should().Be200Ok();
         TaskDto[]? response = await message.Content.ReadFromJsonAsync<TaskDto[]>(TestContext.Current.CancellationToken);
         response.Should().NotBeNull();
-        response.Should().BeEquivalentTo(tasks.OrderByDescending(e => e.Id).ToDtos());
+        response.Should().BeEquivalentTo(tasks.OrderByDescending(e => e.CreatedAt).ToDtos());
     }
 
     [Fact]

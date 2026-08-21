@@ -39,7 +39,7 @@ public sealed class GetTasksByFilterHandlerTests(ToDoAppFixture thisApp)
         GetTasksByFilterResponse? response = await message.Content.ReadFromJsonAsync<GetTasksByFilterResponse>(TestContext.Current.CancellationToken);
         response.Should().NotBeNull();
         response.TotalCount.Should().Be(tasks.Length);
-        response.Tasks.Should().BeEquivalentTo(tasks.OrderByDescending(e => e.Id).ToDtos());
+        response.Tasks.Should().BeEquivalentTo(tasks.OrderByDescending(e => e.CreatedAt).ToDtos());
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public sealed class GetTasksByFilterHandlerTests(ToDoAppFixture thisApp)
         GetTasksByFilterResponse? response = await message.Content.ReadFromJsonAsync<GetTasksByFilterResponse>(TestContext.Current.CancellationToken);
         response.Should().NotBeNull();
         response.TotalCount.Should().Be(expectedTotalCount);
-        response.Tasks.Should().BeEquivalentTo(tasks.OrderByDescending(e => e.Id).ToDtos());
+        response.Tasks.Should().BeEquivalentTo(tasks.OrderByDescending(e => e.CreatedAt).ToDtos());
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public sealed class GetTasksByFilterHandlerTests(ToDoAppFixture thisApp)
         GetTasksByFilterResponse? response = await message.Content.ReadFromJsonAsync<GetTasksByFilterResponse>(TestContext.Current.CancellationToken);
         response.Should().NotBeNull();
         response.TotalCount.Should().Be(expectedTotalCount);
-        response.Tasks.Should().BeEquivalentTo(tasks.OrderByDescending(e => e.Id).ToDtos());
+        response.Tasks.Should().BeEquivalentTo(tasks.OrderByDescending(e => e.CreatedAt).ToDtos());
     }
 
     [Fact]
@@ -132,7 +132,7 @@ public sealed class GetTasksByFilterHandlerTests(ToDoAppFixture thisApp)
         GetTasksByFilterResponse? response = await message.Content.ReadFromJsonAsync<GetTasksByFilterResponse>(TestContext.Current.CancellationToken);
         response.Should().NotBeNull();
         response.TotalCount.Should().Be(expectedTotalCount);
-        response.Tasks.Should().BeEquivalentTo(tasks.OrderByDescending(e => e.Id).ToDtos());
+        response.Tasks.Should().BeEquivalentTo(tasks.OrderByDescending(e => e.CreatedAt).ToDtos());
     }
 
     [Fact]
@@ -150,7 +150,7 @@ public sealed class GetTasksByFilterHandlerTests(ToDoAppFixture thisApp)
         });
         int expectedTotalCount = tasks.Length;
         int skip = Faker.Random.Number(1, tasks.Length - 1);
-        tasks = tasks.OrderByDescending(e => e.Id).Skip(skip).ToArray();
+        tasks = tasks.OrderByDescending(e => e.CreatedAt).Skip(skip).ToArray();
 
         GetTasksByFilterQuery query = new Faker<GetTasksByFilterQuery>().ValidInstance().WithSkip(skip).Generate();
 
@@ -180,7 +180,7 @@ public sealed class GetTasksByFilterHandlerTests(ToDoAppFixture thisApp)
         });
         int expectedTotalCount = tasks.Length;
         int take = Faker.Random.Number(1, tasks.Length - 1);
-        tasks = tasks.OrderByDescending(e => e.Id).Take(take).ToArray();
+        tasks = tasks.OrderByDescending(e => e.CreatedAt).Take(take).ToArray();
 
         GetTasksByFilterQuery query = new Faker<GetTasksByFilterQuery>().ValidInstance().WithTake(take).Generate();
 

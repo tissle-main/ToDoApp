@@ -18,9 +18,9 @@ public sealed class GetTasksHandler(AppDbContext thisDbContext) : IQueryHandler<
         IQueryable<TaskEntity> entities = thisDbContext.Tasks.Include(e => e.Categories).Where(e => e.UserId == user.Id);
         if(query.Ids.Length == 0)
         {
-            return new GetTasksResponse(await entities.OrderByDescending(e => e.Id).ProjectToDto().ToArrayAsync(cancellationToken));
+            return new GetTasksResponse(await entities.OrderByDescending(e => e.CreatedAt).ProjectToDto().ToArrayAsync(cancellationToken));
         }
-        TaskDto[] dtos = await entities.Where(e => query.Ids.Contains(e.Id)).OrderByDescending(e => e.Id).ProjectToDto().ToArrayAsync(cancellationToken);
+        TaskDto[] dtos = await entities.Where(e => query.Ids.Contains(e.Id)).OrderByDescending(e => e.CreatedAt).ProjectToDto().ToArrayAsync(cancellationToken);
         if(dtos.Length != query.Ids.Length)
         {
             return TaskErrors.NotFound();

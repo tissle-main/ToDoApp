@@ -12,7 +12,7 @@ using ToDoApp.Data;
 namespace ToDoApp.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260813143822_InitMigration")]
+    [Migration("20260821080842_InitMigration")]
     partial class InitMigration
     {
         /// <inheritdoc />
@@ -128,7 +128,7 @@ namespace ToDoApp.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ToDoApp.Data.Features.Auth.RefreshTokenEntity", b =>
+            modelBuilder.Entity("ToDoApp.Data.Features.Auth.RefreshTokens.RefreshTokenEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -155,7 +155,7 @@ namespace ToDoApp.Data.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("ToDoApp.Data.Features.Auth.RoleEntity", b =>
+            modelBuilder.Entity("ToDoApp.Data.Features.Auth.Roles.RoleEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -183,7 +183,7 @@ namespace ToDoApp.Data.Migrations
                     b.ToTable("AspNetRoles", (string)null);
                 });
 
-            modelBuilder.Entity("ToDoApp.Data.Features.Auth.UserEntity", b =>
+            modelBuilder.Entity("ToDoApp.Data.Features.Auth.Users.UserEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -255,6 +255,9 @@ namespace ToDoApp.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -275,6 +278,9 @@ namespace ToDoApp.Data.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasMaxLength(400)
@@ -315,7 +321,7 @@ namespace ToDoApp.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
-                    b.HasOne("ToDoApp.Data.Features.Auth.RoleEntity", null)
+                    b.HasOne("ToDoApp.Data.Features.Auth.Roles.RoleEntity", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -324,7 +330,7 @@ namespace ToDoApp.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
-                    b.HasOne("ToDoApp.Data.Features.Auth.UserEntity", null)
+                    b.HasOne("ToDoApp.Data.Features.Auth.Users.UserEntity", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -333,7 +339,7 @@ namespace ToDoApp.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
-                    b.HasOne("ToDoApp.Data.Features.Auth.UserEntity", null)
+                    b.HasOne("ToDoApp.Data.Features.Auth.Users.UserEntity", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -342,13 +348,13 @@ namespace ToDoApp.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
                 {
-                    b.HasOne("ToDoApp.Data.Features.Auth.RoleEntity", null)
+                    b.HasOne("ToDoApp.Data.Features.Auth.Roles.RoleEntity", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ToDoApp.Data.Features.Auth.UserEntity", null)
+                    b.HasOne("ToDoApp.Data.Features.Auth.Users.UserEntity", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -357,16 +363,16 @@ namespace ToDoApp.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
-                    b.HasOne("ToDoApp.Data.Features.Auth.UserEntity", null)
+                    b.HasOne("ToDoApp.Data.Features.Auth.Users.UserEntity", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ToDoApp.Data.Features.Auth.RefreshTokenEntity", b =>
+            modelBuilder.Entity("ToDoApp.Data.Features.Auth.RefreshTokens.RefreshTokenEntity", b =>
                 {
-                    b.HasOne("ToDoApp.Data.Features.Auth.UserEntity", "User")
+                    b.HasOne("ToDoApp.Data.Features.Auth.Users.UserEntity", "User")
                         .WithMany("RefreshTokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -377,7 +383,7 @@ namespace ToDoApp.Data.Migrations
 
             modelBuilder.Entity("ToDoApp.Data.Features.Categories.CategoryEntity", b =>
                 {
-                    b.HasOne("ToDoApp.Data.Features.Auth.UserEntity", "User")
+                    b.HasOne("ToDoApp.Data.Features.Auth.Users.UserEntity", "User")
                         .WithMany("Categories")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -388,7 +394,7 @@ namespace ToDoApp.Data.Migrations
 
             modelBuilder.Entity("ToDoApp.Data.Features.Tasks.TaskEntity", b =>
                 {
-                    b.HasOne("ToDoApp.Data.Features.Auth.UserEntity", "User")
+                    b.HasOne("ToDoApp.Data.Features.Auth.Users.UserEntity", "User")
                         .WithMany("Tasks")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -416,7 +422,7 @@ namespace ToDoApp.Data.Migrations
                     b.Navigation("Right");
                 });
 
-            modelBuilder.Entity("ToDoApp.Data.Features.Auth.UserEntity", b =>
+            modelBuilder.Entity("ToDoApp.Data.Features.Auth.Users.UserEntity", b =>
                 {
                     b.Navigation("Categories");
 

@@ -5,13 +5,16 @@ namespace ToDoApp.Data.Shared.KeyedEntities;
 
 public static class KeyedEntityDbContextExtensions
 {
-    public static void GenerateIdForKeyedEntities(this AppDbContext dbContext)
+    extension(AppDbContext thisDbContext)
     {
-        foreach(EntityEntry<IKeyedEntity> entry in dbContext.ChangeTracker.Entries<IKeyedEntity>())
+        public void GenerateIdForKeyedEntities()
         {
-            if(entry.State is EntityState.Added)
+            foreach(EntityEntry<IKeyedEntity> entry in thisDbContext.ChangeTracker.Entries<IKeyedEntity>())
             {
-                entry.Entity.Id = Guid.CreateVersion7();
+                if(entry.State is EntityState.Added)
+                {
+                    entry.Entity.Id = Guid.CreateVersion7();
+                }
             }
         }
     }

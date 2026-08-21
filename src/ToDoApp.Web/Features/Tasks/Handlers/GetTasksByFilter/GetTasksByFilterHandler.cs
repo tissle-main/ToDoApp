@@ -40,7 +40,7 @@ public sealed class GetTasksByFilterHandler(AppDbContext thisDbContext) : IQuery
         {
             tasks = tasks.Where(e => e.Done == done);
         }
-        tasks = tasks.OrderByDescending(e => e.Id);
+        tasks = tasks.OrderByDescending(e => e.CreatedAt);
         if(query.Skip is int skip)
         {
             tasks = tasks.Skip(skip);

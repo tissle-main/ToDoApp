@@ -6,6 +6,7 @@ using ToDoApp.Data.Features.Auth.Roles;
 using ToDoApp.Data.Shared.KeyedEntities;
 using ToDoApp.Data.Features.Tasks_Categories;
 using ToDoApp.Data.Features.Auth.RefreshTokens;
+using ToDoApp.Data.Shared.CreationTimeEntities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace ToDoApp.Data;
@@ -33,6 +34,7 @@ public sealed class AppDbContext : IdentityDbContext<UserEntity, RoleEntity, Gui
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
         this.GenerateIdForKeyedEntities();
+        this.SetUtcNowForCreationTimeEntities();
         int changedNumber = base.SaveChanges(acceptAllChangesOnSuccess);
         base.ChangeTracker.Clear();
         return changedNumber;
@@ -41,6 +43,7 @@ public sealed class AppDbContext : IdentityDbContext<UserEntity, RoleEntity, Gui
     public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
         this.GenerateIdForKeyedEntities();
+        this.SetUtcNowForCreationTimeEntities();
         int changedNumber = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         base.ChangeTracker.Clear();
         return changedNumber;

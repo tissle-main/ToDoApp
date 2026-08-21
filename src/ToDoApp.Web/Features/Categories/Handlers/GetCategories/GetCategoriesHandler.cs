@@ -18,11 +18,11 @@ public sealed class GetCategoriesHandler(AppDbContext thisDbContext) : IQueryHan
         IQueryable<CategoryEntity> entities = thisDbContext.Categories.Include(e => e.Tasks).Where(e => e.UserId == user.Id);
         if(query.Ids.Length == 0)
         {
-            return new GetCategoriesResponse(await entities.OrderBy(e => e.Id).ProjectToDto().ToArrayAsync(cancellationToken));
+            return new GetCategoriesResponse(await entities.OrderBy(e => e.CreatedAt).ProjectToDto().ToArrayAsync(cancellationToken));
         }
         else
         {
-            CategoryDto[] dtos = await entities.Where(e => query.Ids.Contains(e.Id)).OrderBy(e => e.Id).ProjectToDto().ToArrayAsync(cancellationToken);
+            CategoryDto[] dtos = await entities.Where(e => query.Ids.Contains(e.Id)).OrderBy(e => e.CreatedAt).ProjectToDto().ToArrayAsync(cancellationToken);
             if(dtos.Length != query.Ids.Length)
             {
                 return CategoryErrors.NotFound();

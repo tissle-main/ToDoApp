@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ToDoApp.Data.Shared.KeyedEntities;
+using ToDoApp.Data.Shared.CreationTimeEntities;
 using ToDoApp.Data.Features.Auth.Users.ForeignKey;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,6 +12,7 @@ public sealed class TaskEntityConfiguration : IEntityTypeConfiguration<TaskEntit
     public void Configure(EntityTypeBuilder<TaskEntity> builder)
     {
         builder.ConfigureKeyedEntity();
+        builder.ConfigureCreationTimeEntity();
         builder.Property(e => e.Title).IsRequired().HasMaxLength(TaskEntityConstants.TitleMaxLength);
         builder.Property(e => e.Description).IsRequired(false).HasMaxLength(TaskEntityConstants.DescriptionMaxLength);
         builder.Property(e => e.Done).IsRequired();
