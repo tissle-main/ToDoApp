@@ -1,13 +1,26 @@
-<div class="flex min-h-screen flex-col bg-gray-100">
-  <div class="flex flex-row justify-between p-2 shadow">
-    <div class="flex items-center justify-center rounded-lg bg-blue-50 px-2 shadow">{{email()}}</div>
+<div class="flex h-screen flex-col bg-gray-100">
+
+  <div class="flex shrink-0 flex-row justify-between p-2 shadow">
+    <div class="flex items-center justify-center rounded-lg bg-blue-50 px-2 shadow">
+      {{ email() }}
+    </div>
+
     <div class="flex flex-row space-x-2">
-      <button class="cursor-pointer rounded bg-blue-600 px-2 py-1 font-medium text-white transition hover:bg-blue-700" (click)="logoutUser()">Logout</button>
-      <button class="cursor-pointer rounded bg-red-600 px-2 py-1 font-medium text-white transition hover:bg-red-700" (click)="deleteUser()">Delete</button>
+      <button class="cursor-pointer rounded bg-blue-600 px-2 py-1 font-medium text-white transition hover:bg-blue-700"
+              (click)="logoutUser()">
+        Logout
+      </button>
+
+      <button class="cursor-pointer rounded bg-red-600 px-2 py-1 font-medium text-white transition hover:bg-red-700"
+              (click)="deleteUser()">
+        Delete
+      </button>
     </div>
   </div>
-  <div class="flex flex-1 flex-row">
-    <app-category-list class="w-1/4 shadow" />
-    <app-task-list class="flex-1" />
+
+  <div class="flex min-h-0 flex-1 flex-row">
+    <app-category-list class="min-h-0 w-1/4 shadow" />
+    <app-task-list class="min-h-0 w-3/4" />
   </div>
+
 </div>

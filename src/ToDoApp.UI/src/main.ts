@@ -41,7 +41,7 @@ const appConfig: ApplicationConfig = {
     ),
     {
       provide: API_BASE_URL,
-      useValue: "/api"
+      useValue: ""
     }
   ]
 };

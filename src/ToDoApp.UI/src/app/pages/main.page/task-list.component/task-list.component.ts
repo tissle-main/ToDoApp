@@ -5,13 +5,15 @@ import { CategoryStore } from '../../../features/categories/category.store';
 import { TaskDto } from '../../../api';
 import { TaskListItemComponent } from './task-list-item.component/task-list-item.component';
 import { TaskListItemFormComponent } from './task-list-item.component/task-list-item-form.component/task-list-item-form.component';
+import { TaskListPaginationComponent } from './task-list-pagination.component/task-list-pagination.component';
 
 @Component({
   selector: 'app-task-list',
   imports: [
     FormsModule,
     TaskListItemComponent,
-    TaskListItemFormComponent
+    TaskListItemFormComponent,
+    TaskListPaginationComponent
   ],
   templateUrl: './task-list.component.html',
   styleUrl: './task-list.component.css',

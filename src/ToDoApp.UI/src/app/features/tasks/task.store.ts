@@ -32,6 +32,7 @@ export class TaskStore
   public readonly hasNextPage = computed(() =>
     (this.page() + 1) * this.pageSize() < this.totalCount()
   );
+  public readonly noCategories = signal<boolean>(false);
 
   constructor()
   {
@@ -41,6 +42,7 @@ export class TaskStore
     ).subscribe(search =>
     {
       this.search.set(search || undefined);
+      this.page.set(0);
       this.load();
     });
   }
@@ -64,6 +66,10 @@ export class TaskStore
     ).subscribe({
       next: response =>
       {
+        if (this.noCategories() === true)
+        {
+          response.tasks = response.tasks.filter(task => (task.categories ?? []).length === 0);
+        }
         this.tasks.set(response.tasks);
         this.totalCount.set(response.totalCount);
       },
@@ -76,7 +82,16 @@ export class TaskStore
   }
   public setCategory(category?: string): void
   {
-    this.category.set(category || undefined);
+    if (category === "reserved-option-none")
+    {
+      this.noCategories.set(true);
+      this.category.set(undefined);
+    }
+    else
+    {
+      this.noCategories.set(false);
+      this.category.set(category || undefined);
+    }
     this.page.set(0);
     this.load();
   }

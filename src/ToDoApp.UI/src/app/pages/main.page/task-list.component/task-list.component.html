@@ -1,4 +1,4 @@
-﻿<div class="flex h-full flex-col gap-y-2 p-2">
+<div class="flex max-h-full flex-col gap-y-2 p-2">
 
   <!-- Filters -->
 
@@ -95,6 +95,10 @@
 
       }
 
+      <option value="reserved-option-none">
+        No categories
+      </option>
+
     </select>
 
   </div>
@@ -111,40 +115,47 @@
 
   <!-- Tasks -->
 
-  <div class="flex flex-1 flex-col gap-2 overflow-y-auto py-2">
+<div class="hide-scrollbar flex min-h-0 flex-1 flex-col gap-y-2 overflow-y-auto py-2">
 
-    @if (loading()) {
+  @if (loading()) {
 
     <div class="flex items-center justify-center py-8 text-gray-500">
       Loading...
     </div>
 
-    }
-
-    @else if (tasks().length === 0) {
+  }
+  @else if (tasks().length === 0) {
 
     <div class="flex items-center justify-center py-8 text-gray-500">
       No tasks found.
     </div>
 
-    }
-
-    @else {
+  }
+  @else {
 
     @for (task of tasks(); track task.id)
     {
-
-    <app-task-list-item [task]="task"
-                        [categories]="categories()"
-                        (toggleDone)="saveTask($event)"
-                        (deleteTask)="deleteTask($event)"
-                        (editTask)="editTask($event)" />
-
+      <app-task-list-item
+        [task]="task"
+        [categories]="categories()"
+        (toggleDone)="saveTask($event)"
+        (deleteTask)="deleteTask($event)"
+        (editTask)="editTask($event)" />
     }
 
-    }
+  }
 
-  </div>
+</div>
+
+  <!-- Pagination -->
+
+  <app-task-list-pagination [page]="taskStore.page()"
+                            [totalPages]="taskStore.totalPages()"
+                            [hasPreviousPage]="taskStore.hasPreviousPage()"
+                            [hasNextPage]="taskStore.hasNextPage()"
+                            [loading]="loading()"
+                            (previous)="taskStore.previousPage()"
+                            (next)="taskStore.nextPage()" />
 
   <!-- Task form -->
   @if (showTaskForm())
