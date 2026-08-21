@@ -75,7 +75,7 @@
 
         @if (registerForm.controls.password.hasError('pattern')) {
         <p class="mt-1 text-sm text-red-600">
-          Password must contain at least 8 letters or digits.
+          Password must contain at least 8 characters, including uppercase, lowercase, and a number.
         </p>
         }
 
@@ -122,7 +122,7 @@
 
       @if (error()) {
       <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-        {{ error()?.message ?? 'Login failed.' }}
+        {{ error()?.detail ?? 'Register failed.' }}
       </div>
       }
 

@@ -4,6 +4,7 @@ import { AuthService } from '../../features/auth/auth.service';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { fieldsMatchValidator } from '../../shared/field.match.validator';
+import { ProblemDetails } from '../../api';
 
 @Component({
   selector: 'app-register.page',
@@ -26,15 +27,12 @@ export class RegisterPage
         '',
         [
           Validators.required,
-          Validators.pattern('^[A-Za-z0-9]{8,}$')
+          Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,}$')
         ]
       ],
       confirmPassword: [
         '',
-        [
-          Validators.required,
-          Validators.pattern('^[A-Za-z0-9]{8,}$')
-        ]
+        [Validators.required]
       ]
     },
     {
@@ -42,7 +40,7 @@ export class RegisterPage
     }
   );
   public readonly loading = signal(false);
-  public readonly error = signal<any>(undefined);
+  public readonly error = signal<ProblemDetails | undefined>(undefined);
 
   public onSubmit()
   {
@@ -57,7 +55,7 @@ export class RegisterPage
       finalize(() => this.loading.set(false))
     ).subscribe({
       next: () => this.router.navigate(['/login']),
-      error: err => this.error.set(err)
+      error: err => this.error.set(err.result as ProblemDetails)
     });
   }
 }

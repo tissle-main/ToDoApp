@@ -27,7 +27,7 @@ public static class AuthErrors
     }
     public static Error InvalidPassword()
     {
-        return Error.Failure("Auth.InvalidPassword", "Entered invalid password.");
+        return Error.Failure("Auth.InvalidPassword", "Invalid password.");
     }
 
     extension(IdentityResult thisResult)
