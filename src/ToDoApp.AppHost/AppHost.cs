@@ -3,7 +3,7 @@ using Aspire.Hosting.JavaScript;
 using Arshid.Aspire.ApiDocs.Extensions;
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
-IResourceBuilder<SqlServerServerResource> sqlserver = builder.AddSqlServer(AppHostConstants.SqlServer);
+IResourceBuilder<SqlServerServerResource> sqlserver = builder.AddSqlServer(AppHostConstants.SqlServer).WithDataVolume();
 IResourceBuilder<SqlServerDatabaseResource> database = sqlserver.AddDatabase(AppHostConstants.Database);
 IResourceBuilder<ProjectResource> web = builder.AddProject<Projects.ToDoApp_Web>(AppHostConstants.Web);
 IResourceBuilder<ViteAppResource> ui = builder.AddViteApp(AppHostConstants.UI, "../ToDoApp.UI", "start");
